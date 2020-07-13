@@ -1,8 +1,8 @@
-var z = require('zero-fill')
-  , n = require('numbro')
-  , rsi = require('../../../lib/rsi')
-  , ta_trix = require('../../../lib/ta_trix')
-  , Phenotypes = require('../../../lib/phenotype')
+const z = require('zero-fill')
+const n = require('numbro')
+const rsi = require('../../../lib/rsi')
+const ta_trix = require('../../../lib/ta_trix')
+const Phenotypes = require('../../../lib/phenotype')
 
 module.exports = {
   name: 'ta_trix',
@@ -40,21 +40,21 @@ module.exports = {
       }
     }
 
-    ta_trix(s, s.options.timeperiod).then(function(signal) {
+    ta_trix(s, s.options.timeperiod).then(function (signal) {
       s.period['trix'] = signal
 
       if (s.period.trix && s.lookback[0] && s.lookback[0].trix) {
         s.period.trend_trix = s.period.trix >= 0 ? 'up' : 'down'
       }
 
-      if (s.period.trend_trix == 'up') {
+      if (s.period.trend_trix === 'up') {
         if (s.trend !== 'up') {
           s.acted_on_trend = false
         }
 
         s.trend = 'up'
         s.signal = !s.acted_on_trend ? 'buy' : null
-      } else if (s.period.trend_trix == 'down') {
+      } else if (s.period.trend_trix === 'down') {
         if (s.trend !== 'down') {
           s.acted_on_trend = false
         }
@@ -64,7 +64,7 @@ module.exports = {
       }
 
       cb()
-    }).catch(function(error) {
+    }).catch(function (error) {
       console.log(error)
       cb()
     })
@@ -91,9 +91,9 @@ module.exports = {
     sell_stop_pct: Phenotypes.Range0(1, 50),
     buy_stop_pct: Phenotypes.Range0(1, 50),
     profit_stop_enable_pct: Phenotypes.Range0(1, 20),
-    profit_stop_pct: Phenotypes.Range(1,20),
+    profit_stop_pct: Phenotypes.Range(1, 20),
 
-    timeperiod: Phenotypes.Range(1,60),
+    timeperiod: Phenotypes.Range(1, 60),
     overbought_rsi_periods: Phenotypes.Range(1, 50),
     overbought_rsi: Phenotypes.Range(20, 100)
   }

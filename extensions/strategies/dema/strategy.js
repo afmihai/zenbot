@@ -1,8 +1,8 @@
-var z = require('zero-fill')
-  , n = require('numbro')
-  , rsi = require('../../../lib/rsi')
-  , ema = require('../../../lib/ema')
-  , Phenotypes = require('../../../lib/phenotype')
+const z = require('zero-fill')
+const n = require('numbro')
+const rsi = require('../../../lib/rsi')
+const ema = require('../../../lib/ema')
+const Phenotypes = require('../../../lib/phenotype')
 
 module.exports = {
   name: 'dema',
@@ -50,6 +50,7 @@ module.exports = {
       }
     }
 
+    // TODO: Check types
     if (typeof s.period.dema_histogram === 'number' && typeof s.lookback[0].dema_histogram === 'number') {
       if (s.options.noise_level_pct != 0 && (s.period.ema_short / s.lookback[0].ema_short * 100 < s.options.noise_level_pct)) {
         s.signal = null
@@ -65,9 +66,9 @@ module.exports = {
   },
 
   onReport: function (s) {
-    var cols = []
+    const cols = []
     if (typeof s.period.dema_histogram === 'number') {
-      var color = 'grey'
+      let color = 'grey'
       if (s.period.dema_histogram > 0) {
         color = 'green'
       }

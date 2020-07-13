@@ -1,7 +1,7 @@
-var z = require('zero-fill')
-  , n = require('numbro')
-  , kc = require('../../../lib/kc')
-  , Phenotypes = require('../../../lib/phenotype')
+const z = require('zero-fill')
+const n = require('numbro')
+const kc = require('../../../lib/kc')
+const Phenotypes = require('../../../lib/phenotype')
 
 module.exports = {
   name: 'kc',
@@ -24,9 +24,9 @@ module.exports = {
   onPeriod: function (s, cb) {
     if (s.period.kc) {
       if (s.period.kc.upper && s.period.kc.lower) {
-        let upperChannel = s.period.kc.upper[s.period.kc.upper.length-1]
-        let lowerChannel = s.period.kc.lower[s.period.kc.lower.length-1]
-        if (s.period.close > (upperChannel / 100) * (100 - s.options.kc_upper_channel_pct)) {  
+        let upperChannel = s.period.kc.upper[s.period.kc.upper.length - 1]
+        let lowerChannel = s.period.kc.lower[s.period.kc.lower.length - 1]
+        if (s.period.close > (upperChannel / 100) * (100 - s.options.kc_upper_channel_pct)) {
           s.signal = 'sell'
         } else if (s.period.close < (lowerChannel / 100) * (100 + s.options.kc_lower_channel_pct)) {
           s.signal = 'buy'
@@ -42,8 +42,8 @@ module.exports = {
     var cols = []
     if (s.period.kc) {
       if (s.period.kc.upper && s.period.kc.lower) {
-        let upperChannel = s.period.kc.upper[s.period.kc.upper.length-1]
-        let lowerChannel = s.period.kc.lower[s.period.kc.lower.length-1]
+        let upperChannel = s.period.kc.upper[s.period.kc.upper.length - 1]
+        let lowerChannel = s.period.kc.lower[s.period.kc.lower.length - 1]
         var color = 'grey'
         if (s.period.close > (upperChannel / 100) * (100 - s.options.kc_upper_channel_pct)) {
           color = 'green'
@@ -51,11 +51,10 @@ module.exports = {
           color = 'red'
         }
         cols.push(z(8, n(s.period.close).format('+00.0000'), ' ')[color])
-        cols.push(z(8, n(lowerChannel).format('0.000000').substring(0,7), ' ').cyan)
-        cols.push(z(8, n(upperChannel).format('0.000000').substring(0,7), ' ').cyan)
+        cols.push(z(8, n(lowerChannel).format('0.000000').substring(0, 7), ' ').cyan)
+        cols.push(z(8, n(upperChannel).format('0.000000').substring(0, 7), ' ').cyan)
       }
-    }
-    else {
+    } else {
       cols.push('         ')
     }
     return cols
@@ -70,7 +69,7 @@ module.exports = {
     sell_stop_pct: Phenotypes.Range0(1, 50),
     buy_stop_pct: Phenotypes.Range0(1, 50),
     profit_stop_enable_pct: Phenotypes.Range0(1, 20),
-    profit_stop_pct: Phenotypes.Range(1,20),
+    profit_stop_pct: Phenotypes.Range(1, 20),
 
     // -- strategy
     kc_size: Phenotypes.Range(1, 40),

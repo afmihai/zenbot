@@ -1,7 +1,7 @@
-var z = require('zero-fill')
-  , n = require('numbro')
-  , bollinger = require('../../../lib/bollinger')
-  , Phenotypes = require('../../../lib/phenotype')
+const z = require('zero-fill')
+const n = require('numbro')
+const bollinger = require('../../../lib/bollinger')
+const Phenotypes = require('../../../lib/phenotype')
 
 module.exports = {
   name: 'trend_bollinger',
@@ -65,12 +65,12 @@ module.exports = {
   },
 
   onReport: function (s) {
-    var cols = []
+    const cols = []
     if (s.period.bollinger) {
       if (s.period.bollinger.upperBound && s.period.bollinger.lowerBound) {
         let upperBound = s.period.bollinger.upperBound
         let lowerBound = s.period.bollinger.lowerBound
-        var color = 'grey'
+        let color = 'grey'
         if (s.period.close > (upperBound / 100) * (100 - s.options.bollinger_upper_bound_pct)) {
           color = 'green'
         } else if (s.period.close < (lowerBound / 100) * (100 + s.options.bollinger_lower_bound_pct)) {

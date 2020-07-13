@@ -1,15 +1,15 @@
-var tb = require('timebucket')
-  , minimist = require('minimist')
-  , n = require('numbro')
-  , fs = require('fs')
-  , path = require('path')
-  , moment = require('moment')
-  , colors = require('colors')
-  , objectifySelector = require('../lib/objectify-selector')
-  , engineFactory = require('../lib/engine')
-  , collectionService = require('../lib/services/collection-service')
-  , jsonexport = require('jsonexport')
-  , _ = require('lodash')
+const tb = require('timebucket')
+const minimist = require('minimist')
+const n = require('numbro')
+const fs = require('fs')
+const path = require('path')
+const moment = require('moment')
+const colors = require('colors')
+const objectifySelector = require('../lib/objectify-selector')
+const engineFactory = require('../lib/engine')
+const collectionService = require('../lib/services/collection-service')
+const jsonexport = require('jsonexport')
+const _ = require('lodash')
 
 module.exports = function (program, conf) {
   program
@@ -52,15 +52,15 @@ module.exports = function (program, conf) {
     .option('--verbose', 'print status lines on every period')
     .option('--silent', 'only output on completion (can speed up sim)')
     .action(function (selector, cmd) {
-      var s = { options: minimist(process.argv) }
-      var so = s.options
+      const s = {options: minimist(process.argv)}
+      const so = s.options
       if (!so.quarentine_time) {
         so.quarentine_time = 10
       }
 
       delete so._
       if (cmd.conf) {
-        var overrides = require(path.resolve(process.cwd(), cmd.conf))
+        const overrides = require(path.resolve(process.cwd(), cmd.conf))
         Object.keys(overrides).forEach(function (k) {
           so[k] = overrides[k]
         })
@@ -70,10 +70,10 @@ module.exports = function (program, conf) {
           so[k] = cmd[k]
         }
       })
-      var tradesCollection = collectionService(conf).getTrades()
-      var simResults = collectionService(conf).getSimResults()
+      const tradesCollection = collectionService(conf).getTrades()
+      const simResults = collectionService(conf).getSimResults()
 
-      var eventBus = conf.eventBus
+      const eventBus = conf.eventBus
 
       if (so.start) {
         so.start = moment(so.start, 'YYYYMMDDhhmm').valueOf()
@@ -88,7 +88,7 @@ module.exports = function (program, conf) {
         }
       }
       if (!so.start && so.days) {
-        var d = tb('1d')
+        const d = tb('1d')
         so.start = d.subtract(so.days).toMilliseconds()
       }
 
@@ -100,10 +100,10 @@ module.exports = function (program, conf) {
       so.selector = objectifySelector(selector || conf.selector)
       so.mode = 'sim'
 
-      var engine = engineFactory(s, conf)
+      const engine = engineFactory(s, conf)
       if (!so.min_periods) so.min_periods = 1
-      var cursor, reversing, reverse_point
-      var query_start = so.start ? tb(so.start).resize(so.period_length).subtract(so.min_periods + 2).toMilliseconds() : null
+      let cursor, reversing, reverse_point
+      const query_start = so.start ? tb(so.start).resize(so.period_length).subtract(so.min_periods + 2).toMilliseconds() : null
 
       function exitSim () {
         console.log()
@@ -111,13 +111,13 @@ module.exports = function (program, conf) {
           console.error('no trades found! try running `zenbot backfill ' + so.selector.normalized + '` first')
           process.exit(1)
         }
-        var option_keys = Object.keys(so)
-        var output_lines = []
+        const option_keys = Object.keys(so)
+        const output_lines = []
         option_keys.sort(function (a, b) {
           if (a < b) return -1
           return 1
         })
-        var options = {}
+        const options = {}
         option_keys.forEach(function (k) {
           options[k] = so[k]
         })
@@ -137,19 +137,19 @@ module.exports = function (program, conf) {
 
         s.balance.asset = 0
         s.lookback.unshift(s.period)
-        var profit = s.start_capital ? n(s.balance.currency).subtract(s.start_capital).divide(s.start_capital) : n(0)
+        const profit = s.start_capital ? n(s.balance.currency).subtract(s.start_capital).divide(s.start_capital) : n(0)
         output_lines.push('end balance: ' + n(s.balance.currency).format('0.00000000').yellow + ' (' + profit.format('0.00%') + ')')
         //console.log('start_capital', s.start_capital)
         //console.log('start_price', n(s.start_price).format('0.00000000'))
         //console.log('close', n(s.period.close).format('0.00000000'))
-        var buy_hold = s.start_price ? n(s.period.close).multiply(n(s.start_capital).divide(s.start_price)) : n(s.balance.currency)
+        const buy_hold = s.start_price ? n(s.period.close).multiply(n(s.start_capital).divide(s.start_price)) : n(s.balance.currency)
         //console.log('buy hold', buy_hold.format('0.00000000'))
-        var buy_hold_profit = s.start_capital ? n(buy_hold).subtract(s.start_capital).divide(s.start_capital) : n(0)
+        const buy_hold_profit = s.start_capital ? n(buy_hold).subtract(s.start_capital).divide(s.start_capital) : n(0)
         output_lines.push('buy hold: ' + buy_hold.format('0.00000000').yellow + ' (' + n(buy_hold_profit).format('0.00%') + ')')
         output_lines.push('vs. buy hold: ' + n(s.balance.currency).subtract(buy_hold).divide(buy_hold).format('0.00%').yellow)
         output_lines.push(s.my_trades.length + ' trades over ' + s.day_count + ' days (avg ' + n(s.my_trades.length / s.day_count).format('0.00') + ' trades/day)')
-        var last_buy
-        var losses = 0, sells = 0
+        let last_buy
+        let losses = 0, sells = 0
         s.my_trades.forEach(function (trade) {
           if (trade.type === 'buy') {
             last_buy = trade.price
@@ -191,9 +191,9 @@ module.exports = function (program, conf) {
 
         if (so.backtester_generation >= 0)
         {
-          var file_name = so.strategy.replace('_','')+'_'+ so.selector.normalized.replace('_','').toLowerCase()+'_'+so.backtester_generation
+          const file_name = so.strategy.replace('_', '') + '_' + so.selector.normalized.replace('_', '').toLowerCase() + '_' + so.backtester_generation
           fs.writeFileSync(path.resolve(__dirname, '..', 'simulations','sim_'+file_name+'.json'),options_json, {encoding: 'utf8'})
-          var trades_json = JSON.stringify(s.my_trades, null, 2)
+          const trades_json = JSON.stringify(s.my_trades, null, 2)
           fs.writeFileSync(path.resolve(__dirname, '..', 'simulations','sim_trades_'+file_name+'.json'),trades_json, {encoding: 'utf8'})
           jsonexport(s.my_trades,function(err, csv){
             if(err) return console.log(err)
@@ -202,26 +202,26 @@ module.exports = function (program, conf) {
         }
 
         if (so.filename !== 'none') {
-          var html_output = output_lines.map(function (line) {
+          const html_output = output_lines.map(function (line) {
             return colors.stripColors(line)
           }).join('\n')
-          var data = s.lookback.slice(0, s.lookback.length - so.min_periods).map(function (period) {
-            var data = {}
-            var keys = Object.keys(period)
-            for(var i = 0;i < keys.length;i++){
+          const data = s.lookback.slice(0, s.lookback.length - so.min_periods).map(function (period) {
+            const data = {}
+            const keys = Object.keys(period)
+            for (let i = 0; i < keys.length; i++) {
               data[keys[i]] = period[keys[i]]
             }
             return data
           })
-          var code = 'var data = ' + JSON.stringify(data) + ';\n'
+          let code = 'var data = ' + JSON.stringify(data) + ';\n'
           code += 'var trades = ' + JSON.stringify(s.my_trades) + ';\n'
-          var tpl = fs.readFileSync(path.resolve(__dirname, '..', 'templates', 'sim_result.html.tpl'), {encoding: 'utf8'})
-          var out = tpl
+          const tpl = fs.readFileSync(path.resolve(__dirname, '..', 'templates', 'sim_result.html.tpl'), {encoding: 'utf8'})
+          const out = tpl
             .replace('{{code}}', code)
             .replace('{{trend_ema_period}}', so.trend_ema || 36)
             .replace('{{output}}', html_output)
-            .replace(/\{\{symbol\}\}/g,  so.selector.normalized + ' - zenbot ' + require('../package.json').version)
-          var out_target = so.filename || 'simulations/sim_result_' + so.selector.normalized +'_' + new Date().toISOString().replace(/T/, '_').replace(/\..+/, '').replace(/-/g, '').replace(/:/g, '').replace(/20/, '') + '_UTC.html'
+            .replace(/\{\{symbol\}\}/g, so.selector.normalized + ' - zenbot ' + require('../package.json').version)
+          const out_target = so.filename || 'simulations/sim_result_' + so.selector.normalized + '_' + new Date().toISOString().replace(/T/, '_').replace(/\..+/, '').replace(/-/g, '').replace(/:/g, '').replace(/20/, '') + '_UTC.html'
           fs.writeFileSync(out_target, out)
           console.log('wrote', out_target)
         }
@@ -236,17 +236,17 @@ module.exports = function (program, conf) {
           })
       }
 
-      var getNext = async () => {
-        var opts = {
+      const getNext = async () => {
+        const opts = {
           query: {
             selector: so.selector.normalized
           },
-          sort: { time: 1 },
+          sort: {time: 1},
           limit: 100,
           timeout: false
         }
         if (so.end) {
-          opts.query.time = { $lte: so.end }
+          opts.query.time = {$lte: so.end}
         }
         if (cursor) {
           if (reversing) {
@@ -255,7 +255,7 @@ module.exports = function (program, conf) {
             if (query_start) {
               opts.query.time['$gte'] = query_start
             }
-            opts.sort = { time: -1 }
+            opts.sort = {time: -1}
           } else {
             if (!opts.query.time) opts.query.time = {}
             opts.query.time['$gt'] = cursor
@@ -264,18 +264,18 @@ module.exports = function (program, conf) {
           if (!opts.query.time) opts.query.time = {}
           opts.query.time['$gte'] = query_start
         }
-        var collectionCursor = tradesCollection
+        const collectionCursor = tradesCollection
           .find(opts.query)
           .sort(opts.sort)
           .limit(opts.limit)
 
-        var totalTrades = await collectionCursor.count(true)
+        const totalTrades = await collectionCursor.count(true)
         const collectionCursorStream = collectionCursor.stream()
 
-        var numTrades = 0
-        var lastTrade
+        let numTrades = 0
+        let lastTrade
 
-        var onCollectionCursorEnd = () => {
+        const onCollectionCursorEnd = () => {
           if (numTrades === 0) {
             if (so.symmetrical && !reversing) {
               reversing = true
@@ -295,11 +295,11 @@ module.exports = function (program, conf) {
           return getNext()
         }
 
-        if(totalTrades === 0) {
+        if (totalTrades === 0) {
           onCollectionCursorEnd()
         }
 
-        collectionCursorStream.on('data', function(trade) {
+        collectionCursorStream.on('data', function (trade) {
           lastTrade = trade
           numTrades++
           if (so.symmetrical && reversing) {
@@ -308,6 +308,7 @@ module.exports = function (program, conf) {
           }
           eventBus.emit('trade', trade)
 
+          // TODO: Check if you have number here
           if (numTrades && totalTrades && totalTrades == numTrades) {
             onCollectionCursorEnd()
           }

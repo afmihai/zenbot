@@ -1,6 +1,6 @@
-var Moment = require('moment')
+const Moment = require('moment')
 
-module.exports = (trade_id, data) => { 
+module.exports = (trade_id, data) => {
   if (data !== undefined && typeof process.stdout.clearLine == 'function') {
     process.stdout.clearLine()
     process.stdout.write(data.pingCount + ' trades processed so far. The most recently processed trade happened ' + Moment(data.time).fromNow() + '.' )

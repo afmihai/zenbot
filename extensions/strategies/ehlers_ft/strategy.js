@@ -4,46 +4,46 @@ Author: Travis
 
 Adapted from: https://www.tradingview.com/script/Q0eQz7ll-Fisher-Transform-Indicator-by-Ehlers-Strategy/
 
-Description: Market prices do not have a Gaussian probability density function 
-as many traders think. Their probability curve is not bell-shaped. 
-But trader can create a nearly Gaussian PDF for prices by normalizing 
-them or creating a normalized indicator such as the relative strength 
-index and applying the Fisher transform . Such a transformed output 
-creates the peak swings as relatively rare events. 
-Fisher transform formula is: y = 0.5 * ln ((1+x)/(1-x)) 
-The sharp turning points of these peak swings clearly and unambiguously 
-identify price reversals in a timely manner. 
+Description: Market prices do not have a Gaussian probability density function
+as many traders think. Their probability curve is not bell-shaped.
+But trader can create a nearly Gaussian PDF for prices by normalizing
+them or creating a normalized indicator such as the relative strength
+index and applying the Fisher transform . Such a transformed output
+creates the peak swings as relatively rare events.
+Fisher transform formula is: y = 0.5 * ln ((1+x)/(1-x))
+The sharp turning points of these peak swings clearly and unambiguously
+identify price reversals in a timely manner.
 
-Author Notes: 
+Author Notes:
 pos = 1 indicates the fisher transform value for the period was ABOVE the previous period
 pos = -1 indicates the fisher transform value for the period was BELOW the previous period
-pos_length = 1 does default behavior from the original tradingview strategy.  
-If pos_length > 1, make sure pos_length number of previous periods have opposite pos values. 
+pos_length = 1 does default behavior from the original tradingview strategy.
+If pos_length > 1, make sure pos_length number of previous periods have opposite pos values.
 
 Sample sim command:
-zenbot sim gdax.LTC-USD --strategy ehlers_ft --period_length 15m --days 3 --order_type maker --fish_pct_change 0 --length 10 --pos_length 1 --src HAohlc4 --min_periods 20 
+zenbot sim gdax.LTC-USD --strategy ehlers_ft --period_length 15m --days 3 --order_type maker --fish_pct_change 0 --length 10 --pos_length 1 --src HAohlc4 --min_periods 20
 
-If you have found this strategy useful and would like to show your appreciation, please consider donating 
-ETH, BTC, or LTC to the developer, Travis.  
-ETH: 0xdA963A127BeCB08227583d11f912F400D5347060 
+If you have found this strategy useful and would like to show your appreciation, please consider donating
+ETH, BTC, or LTC to the developer, Travis.
+ETH: 0xdA963A127BeCB08227583d11f912F400D5347060
 BTC: 3KKHdBJpEGxghxGazoE4X7ihyr2q6nHUvW
 LTC: MSePEwGJF8W4wvGCbJBqMtatwdBGYhT8FM
 
-Please direct feedback concerning this strategy to the zenbot strategies discord channel @Travis: 
+Please direct feedback concerning this strategy to the zenbot strategies discord channel @Travis:
 https://discordapp.com/channels/316120967200112642/383023593942155274
 
 */
 
-const z = require('zero-fill'),
-  n = require('numbro'),
-  Phenotypes = require('../../../lib/phenotype'),
-  tv = require('../../../lib/helpers')
+const z = require('zero-fill')
+const n = require('numbro')
+const Phenotypes = require('../../../lib/phenotype')
+const tv = require('../../../lib/helpers')
 
 module.exports = {
   name: 'ehlers_fisher_transform',
   description: '',
 
-  getOptions: function() {
+  getOptions: function () {
     this.option('period', 'period length, same as --period_length', String, '30m')
     this.option('period_length', 'period length, same as --period', String, '30m')
     this.option('fish_pct_change', 'percent change of fisher transform for reversal', Number, 0)
@@ -52,9 +52,10 @@ module.exports = {
     this.option('pos_length', 'check this number of previous periods have opposing pos value', Number, 1)
   },
 
-  calculate: function() {},
+  calculate: function () {
+  },
 
-  onPeriod: function(s, cb) {
+  onPeriod: function (s, cb) {
     // console.log('')
     if (!s.eft) {
       s.eft = {
@@ -114,8 +115,8 @@ module.exports = {
     cb()
   },
 
-  onReport: function(s) {
-    var cols = []
+  onReport: function (s) {
+    const cols = []
     cols.push(z(10, 'F[' + n(s.eft.fish[0]).format('#.000') + ']', ''))
     cols.push(z(10, ' P[' + n(s.eft.pos[0]).format('##') + ']', ''))
     return cols
@@ -157,7 +158,7 @@ nValue2 = iff(nValue1 > .99,  .999,
 	        iff(nValue1 < -.99, -.999, nValue1))
 nFish = 0.5 * log((1 + nValue2) / (1 - nValue2)) + 0.5 * nz(nFish[1])
 pos =	iff(nFish > nz(nFish[1]), 1,
-	    iff(nFish < nz(nFish[1]), -1, nz(pos[1], 0))) 
+	    iff(nFish < nz(nFish[1]), -1, nz(pos[1], 0)))
 barcolor(pos == -1 ? red: pos == 1 ? green : blue )
 plot(nFish, color=green, title="Fisher")
 plot(nz(nFish[1]), color=red, title="Trigger")

@@ -1,7 +1,7 @@
-var tb = require('timebucket')
-  , crypto = require('crypto')
-  , objectifySelector = require('../lib/objectify-selector')
-  , collectionService = require('../lib/services/collection-service')
+const tb = require('timebucket')
+const crypto = require('crypto')
+const objectifySelector = require('../lib/objectify-selector')
+const collectionService = require('../lib/services/collection-service')
 
 module.exports = function (program, conf) {
   program
@@ -14,17 +14,17 @@ module.exports = function (program, conf) {
     .option('--end <unix_in_ms>', 'upper bound as unix time in ms', Number, -1)
     .action(function (selector, cmd) {
       selector = objectifySelector(selector || conf.selector)
-      var exchange = require(`../extensions/exchanges/${selector.exchange_id}/exchange`)(conf)
+      const exchange = require(`../extensions/exchanges/${selector.exchange_id}/exchange`)(conf)
       if (!exchange) {
         console.error('cannot backfill ' + selector.normalized + ': exchange not implemented')
         process.exit(1)
       }
 
-      var collectionServiceInstance = collectionService(conf)
-      var tradesCollection = collectionServiceInstance.getTrades()
-      var resume_markers = collectionServiceInstance.getResumeMarkers()
+      const collectionServiceInstance = collectionService(conf)
+      const tradesCollection = collectionServiceInstance.getTrades()
+      const resume_markers = collectionServiceInstance.getResumeMarkers()
 
-      var marker = {
+      const marker = {
         id: crypto.randomBytes(4).toString('hex'),
         selector: selector.normalized,
         from: null,
@@ -33,15 +33,15 @@ module.exports = function (program, conf) {
         newest_time: null
       }
       marker._id = marker.id
-      var trade_counter = 0
-      var day_trade_counter = 0
-      var get_trade_retry_count = 0
-      var days_left = cmd.days + 1
-      var target_time, start_time
-      var mode = exchange.historyScan
-      var last_batch_id, last_batch_opts
-      var offset = exchange.offset
-      var markers, trades
+      let trade_counter = 0
+      let day_trade_counter = 0
+      let get_trade_retry_count = 0
+      let days_left = cmd.days + 1
+      let target_time, start_time
+      const mode = exchange.historyScan
+      let last_batch_id, last_batch_opts
+      const offset = exchange.offset
+      let markers, trades
       if (!mode) {
         console.error('cannot backfill ' + selector.normalized + ': exchange does not offer historical data')
         process.exit(0)
@@ -75,7 +75,7 @@ module.exports = function (program, conf) {
       })
 
       function getNext () {
-        var opts = {product_id: selector.product_id}
+        const opts = {product_id: selector.product_id}
         if (mode === 'backward') {
           opts.to = marker.from
         }
@@ -147,8 +147,8 @@ module.exports = function (program, conf) {
 
       function runTasks (trades) {
         Promise.all(trades.map((trade)=>saveTrade(trade))).then(function(/*results*/){
-          var oldest_time = marker.oldest_time
-          var newest_time = marker.newest_time
+          const oldest_time = marker.oldest_time
+          const newest_time = marker.newest_time
           markers.forEach(function (other_marker) {
             // for backward scan, if the oldest_time is within another marker's range, skip to the other marker's start point.
             // for forward scan, if the newest_time is within another marker's range, skip to the other marker's end point.
@@ -161,7 +161,7 @@ module.exports = function (program, conf) {
               marker.newest_time = other_marker.newest_time
             }
           })
-          var diff
+          let diff
           if (oldest_time !== marker.oldest_time) {
             diff = tb(oldest_time - marker.oldest_time).resize('1h').value
             console.log('\nskipping ' + diff + ' hrs of previously collected data')
@@ -187,8 +187,8 @@ module.exports = function (program, conf) {
       function setupNext() {
         trade_counter += trades.length
         day_trade_counter += trades.length
-        var current_days_left = 1 + (mode === 'backward' ? tb(marker.oldest_time - target_time).resize('1d').value : tb(target_time - marker.newest_time).resize('1d').value)
-        if (current_days_left >= 0 && current_days_left != days_left) {
+        const current_days_left = 1 + (mode === 'backward' ? tb(marker.oldest_time - target_time).resize('1d').value : tb(target_time - marker.newest_time).resize('1d').value)
+        if (current_days_left >= 0 && current_days_left !== days_left) {
           console.log('\n' + selector.normalized, 'saved', day_trade_counter, 'trades', current_days_left, 'days left')
           day_trade_counter = 0
           days_left = current_days_left
@@ -215,7 +215,7 @@ module.exports = function (program, conf) {
         trade.id = selector.normalized + '-' + String(trade.trade_id)
         trade._id = trade.id
         trade.selector = selector.normalized
-        var cursor = exchange.getCursor(trade)
+        const cursor = exchange.getCursor(trade)
         if (mode === 'backward') {
           if (!marker.to) {
             marker.to = cursor

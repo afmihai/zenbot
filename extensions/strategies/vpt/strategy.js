@@ -10,33 +10,33 @@ module.exports = {
   },
 
   // called first, but without lookback, working on s.period
-  calculate: function(s) {
-    if(s.lookback && s.lookback[0] && s.lookback[0].vpt){
+  calculate: function (s) {
+    if (s.lookback && s.lookback[0] && s.lookback[0].vpt) {
       //s.period.vpt = s.lookback[0].volume + s.period.volume * ((s.period.close - s.lookback[0].close)/s.lookback[0].close)
-      s.period.vpt = s.lookback[0].vpt + s.period.volume * ((s.period.close - s.lookback[0].close)/s.lookback[0].close)
-    } else if(s.lookback && s.lookback[0]){
-      s.period.vpt = s.period.volume + s.period.volume * ((s.period.close - s.lookback[0].close)/s.lookback[0].close)
+      s.period.vpt = s.lookback[0].vpt + s.period.volume * ((s.period.close - s.lookback[0].close) / s.lookback[0].close)
+    } else if (s.lookback && s.lookback[0]) {
+      s.period.vpt = s.period.volume + s.period.volume * ((s.period.close - s.lookback[0].close) / s.lookback[0].close)
     }
   },
 
   onPeriod: function (s, cb) {
-    if(s.lookback.length >= 1) {
-      if(s.period.vpt > s.lookback[0].vpt) 
-        s.trend = "up"
+    if (s.lookback.length >= 1) {
+      if (s.period.vpt > s.lookback[0].vpt)
+        s.trend = 'up'
       else
-        s.trend = "down"
+        s.trend = 'down'
 
       // if(s.trend == 'up')
       //   s.signal = 'buy'
       // else
       //   s.signal = 'sell'
-    } 
+    }
     cb()
   },
 
-  onReport: function(s) {
-    var cols = []
-    if(s) {
+  onReport: function (s) {
+    const cols = []
+    if (s) {
       return cols
     } else {
       return cols

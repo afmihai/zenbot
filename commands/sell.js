@@ -1,4 +1,4 @@
-var minimist = require('minimist')
+const minimist = require('minimist')
   , n = require('numbro')
   // eslint-disable-next-line no-unused-vars
   , colors = require('colors')
@@ -19,8 +19,8 @@ module.exports = function (program, conf) {
     .option('--max_slippage_pct <pct>', 'avoid selling at a slippage pct above this float', conf.max_slippage_pct)
     .option('--debug', 'output detailed debug info')
     .action(function (selector, cmd) {
-      var s = {options: minimist(process.argv)}
-      var so = s.options
+      const s = {options: minimist(process.argv)}
+      const so = s.options
       delete so._
       Object.keys(conf).forEach(function (k) {
         if (typeof cmd[k] !== 'undefined') {
@@ -30,14 +30,14 @@ module.exports = function (program, conf) {
       so.debug = cmd.debug
       so.sell_pct = cmd.pct
       so.selector = objectifySelector(selector || conf.selector)
-      var order_types = ['maker', 'taker']
+      const order_types = ['maker', 'taker']
       if (!order_types.includes(so.order_type)) {
         so.order_type = 'maker'
       }
       so.mode = 'live'
       so.strategy = conf.strategy
       so.stats = true
-      var engine = engineFactory(s, conf)
+      const engine = engineFactory(s, conf)
       engine.executeSignal('sell', function (err, order) {
         if (err) {
           console.error(err)

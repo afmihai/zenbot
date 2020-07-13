@@ -1,52 +1,11 @@
 const ccxt = require('ccxt')
-  , path = require('path')
-  // eslint-disable-next-line no-unused-vars
-  , colors = require('colors')
-  , _ = require('lodash')
+const path = require('path')
+// eslint-disable-next-line no-unused-vars
+const colors = require('colors')
+const _ = require('lodash')
 
 module.exports = function binance (conf) {
-  var public_client, authed_client
-
-  function publicClient () {
-    if (!public_client) public_client = new ccxt.binance({ 'apiKey': '', 'secret': '', 'options': { 'adjustForTimeDifference': true } })
-    return public_client
-  }
-
-  function authedClient () {
-    if (!authed_client) {
-      if (!conf.binance || !conf.binance.key || conf.binance.key === 'YOUR-API-KEY') {
-        throw new Error('please configure your Binance credentials in ' + path.resolve(__dirname, 'conf.js'))
-      }
-      authed_client = new ccxt.binance({ 'apiKey': conf.binance.key, 'secret': conf.binance.secret, 'options': { 'adjustForTimeDifference': true }, enableRateLimit: true })
-    }
-    return authed_client
-  }
-
-  /**
-  * Convert BNB-BTC to BNB/BTC
-  *
-  * @param product_id BNB-BTC
-  * @returns {string}
-  */
-  function joinProduct(product_id) {
-    let split = product_id.split('-')
-    return split[0] + '/' + split[1]
-  }
-
-  function retry (method, args, err) {
-    if (method !== 'getTrades') {
-      console.error(('\nBinance API is down! unable to call ' + method + ', retrying in 20s').red)
-      if (err) console.error(err)
-      console.error(args.slice(0, -1))
-    }
-    setTimeout(function () {
-      exchange[method].apply(exchange, args)
-    }, 20000)
-  }
-
-  var orders = {}
-
-  var exchange = {
+  const exchange = {
     name: 'binance',
     historyScan: 'forward',
     historyScanUsesTime: true,
@@ -58,10 +17,10 @@ module.exports = function binance (conf) {
     },
 
     getTrades: function (opts, cb) {
-      var func_args = [].slice.call(arguments)
-      var client = publicClient()
-      var startTime = null
-      var args = {}
+      const func_args = [].slice.call(arguments)
+      const client = publicClient()
+      let startTime = null
+      const args = {}
       if (opts.from) {
         startTime = opts.from
       } else {
@@ -87,7 +46,7 @@ module.exports = function binance (conf) {
         }
         return result
       }).then(result => {
-        var trades = result.map(trade => ({
+        const trades = result.map(trade => ({
           trade_id: trade.id,
           time: trade.timestamp,
           size: parseFloat(trade.amount),
@@ -103,10 +62,10 @@ module.exports = function binance (conf) {
     },
 
     getBalance: function (opts, cb) {
-      var func_args = [].slice.call(arguments)
-      var client = authedClient()
+      const func_args = [].slice.call(arguments)
+      const client = authedClient()
       client.fetchBalance().then(result => {
-        var balance = {asset: 0, currency: 0}
+        const balance = {asset: 0, currency: 0}
         Object.keys(result).forEach(function (key) {
           if (key === opts.currency) {
             balance.currency = result[key].free + result[key].used
@@ -126,8 +85,8 @@ module.exports = function binance (conf) {
     },
 
     getQuote: function (opts, cb) {
-      var func_args = [].slice.call(arguments)
-      var client = publicClient()
+      const func_args = [].slice.call(arguments)
+      const client = publicClient()
       client.fetchTicker(joinProduct(opts.product_id)).then(result => {
         cb(null, { bid: result.bid, ask: result.ask })
       })
@@ -138,8 +97,8 @@ module.exports = function binance (conf) {
     },
 
     getDepth: function (opts, cb) {
-      var func_args = [].slice.call(arguments)
-      var client = publicClient()
+      const func_args = [].slice.call(arguments)
+      const client = publicClient()
       client.fetchOrderBook(joinProduct(opts.product_id), {limit: opts.limit}).then(result => {
         cb(null, result)
       })
@@ -150,8 +109,8 @@ module.exports = function binance (conf) {
     },
 
     cancelOrder: function (opts, cb) {
-      var func_args = [].slice.call(arguments)
-      var client = authedClient()
+      const func_args = [].slice.call(arguments)
+      const client = authedClient()
       client.cancelOrder(opts.order_id, joinProduct(opts.product_id)).then(function (body) {
         if (body && (body.message === 'Order already done' || body.message === 'order not found')) return cb()
         cb(null)
@@ -176,13 +135,13 @@ module.exports = function binance (conf) {
     },
 
     buy: function (opts, cb) {
-      var func_args = [].slice.call(arguments)
-      var client = authedClient()
+      const func_args = [].slice.call(arguments)
+      const client = authedClient()
       if (typeof opts.post_only === 'undefined') {
         opts.post_only = true
       }
       opts.type = 'limit'
-      var args = {}
+      const args = {}
       if (opts.order_type === 'taker') {
         delete opts.price
         delete opts.post_only
@@ -192,7 +151,7 @@ module.exports = function binance (conf) {
       }
       opts.side = 'buy'
       delete opts.order_type
-      var order = {}
+      let order = {}
       client.createOrder(joinProduct(opts.product_id), opts.type, opts.side, this.roundToNearest(opts.size, opts), opts.price, args).then(result => {
         if (result && result.message === 'Insufficient funds') {
           order = {
@@ -232,13 +191,13 @@ module.exports = function binance (conf) {
     },
 
     sell: function (opts, cb) {
-      var func_args = [].slice.call(arguments)
-      var client = authedClient()
+      const func_args = [].slice.call(arguments)
+      const client = authedClient()
       if (typeof opts.post_only === 'undefined') {
         opts.post_only = true
       }
       opts.type = 'limit'
-      var args = {}
+      const args = {}
       if (opts.order_type === 'taker') {
         delete opts.price
         delete opts.post_only
@@ -248,7 +207,7 @@ module.exports = function binance (conf) {
       }
       opts.side = 'sell'
       delete opts.order_type
-      var order = {}
+      let order = {}
       client.createOrder(joinProduct(opts.product_id), opts.type, opts.side, this.roundToNearest(opts.size, opts), opts.price, args).then(result => {
         if (result && result.message === 'Insufficient funds') {
           order = {
@@ -288,16 +247,19 @@ module.exports = function binance (conf) {
     },
 
     roundToNearest: function(numToRound, opts) {
-      var numToRoundTo = _.find(this.getProducts(), { 'asset': opts.product_id.split('-')[0], 'currency': opts.product_id.split('-')[1] }).min_size
+      let numToRoundTo = _.find(this.getProducts(), {
+        'asset': opts.product_id.split('-')[0],
+        'currency': opts.product_id.split('-')[1]
+      }).min_size
       numToRoundTo = 1 / (numToRoundTo)
 
       return Math.floor(numToRound * numToRoundTo) / numToRoundTo
     },
 
     getOrder: function (opts, cb) {
-      var func_args = [].slice.call(arguments)
-      var client = authedClient()
-      var order = orders['~' + opts.order_id]
+      const func_args = [].slice.call(arguments)
+      const client = authedClient()
+      const order = orders['~' + opts.order_id]
       client.fetchOrder(opts.order_id, joinProduct(opts.product_id)).then(function (body) {
         if (body.status !== 'open' && body.status !== 'canceled') {
           order.status = 'done'
@@ -315,5 +277,48 @@ module.exports = function binance (conf) {
       return (trade.time || trade)
     }
   }
+
+  let public_client
+  let authed_client
+
+  function publicClient () {
+    if (!public_client) public_client = new ccxt.binance({ 'apiKey': '', 'secret': '', 'options': { 'adjustForTimeDifference': true } })
+    return public_client
+  }
+
+  function authedClient () {
+    if (!authed_client) {
+      if (!conf.binance || !conf.binance.key || conf.binance.key === 'YOUR-API-KEY') {
+        throw new Error('please configure your Binance credentials in ' + path.resolve(__dirname, 'conf.js'))
+      }
+      authed_client = new ccxt.binance({ 'apiKey': conf.binance.key, 'secret': conf.binance.secret, 'options': { 'adjustForTimeDifference': true }, enableRateLimit: true })
+    }
+    return authed_client
+  }
+
+  /**
+  * Convert BNB-BTC to BNB/BTC
+  *
+  * @param product_id BNB-BTC
+  * @returns {string}
+  */
+  function joinProduct(product_id) {
+    let split = product_id.split('-')
+    return split[0] + '/' + split[1]
+  }
+
+  function retry (method, args, err) {
+    if (method !== 'getTrades') {
+      console.error(('\nBinance API is down! unable to call ' + method + ', retrying in 20s').red)
+      if (err) console.error(err)
+      console.error(args.slice(0, -1))
+    }
+    setTimeout(function () {
+      exchange[method].apply(exchange, args)
+    }, 20000)
+  }
+
+  const orders = {}
+
   return exchange
 }

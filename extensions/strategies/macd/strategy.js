@@ -1,8 +1,8 @@
-var z = require('zero-fill')
-  , n = require('numbro')
-  , ema = require('../../../lib/ema')
-  , rsi = require('../../../lib/rsi')
-  , Phenotypes = require('../../../lib/phenotype')
+const z = require('zero-fill')
+const n = require('numbro')
+const ema = require('../../../lib/ema')
+const rsi = require('../../../lib/rsi')
+const Phenotypes = require('../../../lib/phenotype')
 
 module.exports = {
   name: 'macd',
@@ -68,19 +68,17 @@ module.exports = {
   },
 
   onReport: function (s) {
-    var cols = []
+    const cols = []
     if (typeof s.period.macd_histogram === 'number') {
-      var color = 'grey'
+      let color = 'grey'
       if (s.period.macd_histogram > 0) {
         color = 'green'
-      }
-      else if (s.period.macd_histogram < 0) {
+      } else if (s.period.macd_histogram < 0) {
         color = 'red'
       }
       cols.push(z(8, n(s.period.macd_histogram).format('+00.0000'), ' ')[color])
       cols.push(z(8, n(s.period.overbought_rsi).format('00'), ' ').cyan)
-    }
-    else {
+    } else {
       cols.push('         ')
     }
     return cols
@@ -96,7 +94,7 @@ module.exports = {
     sell_stop_pct: Phenotypes.Range0(1, 50),
     buy_stop_pct: Phenotypes.Range0(1, 50),
     profit_stop_enable_pct: Phenotypes.Range0(1, 20),
-    profit_stop_pct: Phenotypes.Range(1,20),
+    profit_stop_pct: Phenotypes.Range(1, 20),
 
     // -- strategy
     ema_short_period: Phenotypes.Range(1, 20),

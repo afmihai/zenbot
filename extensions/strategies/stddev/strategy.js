@@ -1,8 +1,8 @@
-var z = require('zero-fill')
-  , stats = require('stats-lite')
-  , math = require('mathjs')
-  , ema = require('../../../lib/ema')
-  , Phenotypes = require('../../../lib/phenotype')
+const z = require('zero-fill')
+const stats = require('stats-lite')
+const math = require('mathjs')
+const ema = require('../../../lib/ema')
+const Phenotypes = require('../../../lib/phenotype')
 
 module.exports = {
   name: 'stddev',
@@ -18,11 +18,15 @@ module.exports = {
   },
   onPeriod: function (s, cb) {
     ema(s, 'stddev', s.options.stddev)
-    var tl0 = []
-    var tl1 = []
+    const tl0 = []
+    const tl1 = []
     if (s.lookback[s.options.min_periods]) {
-      for (let i = 0; i < s.options.trendtrades_1; i++) { tl0.push(s.lookback[i].close) }
-      for (let i = 0; i < s.options.trendtrades_2; i++) { tl1.push(s.lookback[i].close) }
+      for (let i = 0; i < s.options.trendtrades_1; i++) {
+        tl0.push(s.lookback[i].close)
+      }
+      for (let i = 0; i < s.options.trendtrades_2; i++) {
+        tl1.push(s.lookback[i].close)
+      }
       s.std0 = stats.stdev(tl0) / 2
       s.std1 = stats.stdev(tl1) / 2
       s.mean0 = math.mean(tl0)
@@ -32,14 +36,13 @@ module.exports = {
     }
     if (s.sig1 === 'Down') {
       s.signal = 'sell'
-    }
-    else if (s.sig0 === 'Up' && s.sig1 === 'Up') {
+    } else if (s.sig0 === 'Up' && s.sig1 === 'Up') {
       s.signal = 'buy'
     }
     cb()
   },
   onReport: function (s) {
-    var cols = []
+    const cols = []
     cols.push(z(s.signal, ' ')[s.signal === false ? 'red' : 'green'])
     return cols
   },
@@ -55,7 +58,7 @@ module.exports = {
     sell_stop_pct: Phenotypes.Range0(1, 50),
     buy_stop_pct: Phenotypes.Range0(1, 50),
     profit_stop_enable_pct: Phenotypes.Range0(1, 20),
-    profit_stop_pct: Phenotypes.Range(1,20),
+    profit_stop_pct: Phenotypes.Range(1, 20),
 
     // -- strategy
     trendtrades_1: Phenotypes.Range(2, 20),

@@ -1,13 +1,13 @@
-var fs = require('fs'),
-  // eslint-disable-next-line no-unused-vars
-  colors = require('colors')
+const fs = require('fs')
+// eslint-disable-next-line no-unused-vars
+const colors = require('colors')
 
 module.exports = function (program, conf) {
   program
     .command('list-strategies')
     .description('list available strategies')
     .action(function (/*cmd*/) {
-      var strategies = fs.readdirSync('./extensions/strategies')
+      const strategies = fs.readdirSync('./extensions/strategies')
       strategies.forEach((strategy) => {
         let strat = require(`../extensions/strategies/${strategy}/strategy`)
         console.log(strat.name.cyan + (strat.name === conf.strategy ? ' (default)'.grey : ''))
@@ -16,7 +16,7 @@ module.exports = function (program, conf) {
           console.log('    ' + strat.description.grey)
         }
         console.log('  options:'.grey)
-        var ctx = {
+        const ctx = {
           option: function (name, desc, type, def) {
             console.log(('    --' + name).green + '=<value>'.grey + '  ' + desc.grey + (typeof def !== 'undefined' ? (' (default: '.grey + def + ')'.grey) : ''))
           }

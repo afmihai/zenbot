@@ -1,8 +1,6 @@
-var z = require('zero-fill'),
-  n = require('numbro'),
-  highest = require('../../../lib/highest'),
-  lowest = require('../../../lib/lowest'),
-  Phenotypes = require('../../../lib/phenotype')
+const highest = require('../../../lib/highest')
+const lowest = require('../../../lib/lowest')
+const Phenotypes = require('../../../lib/phenotype')
 
 module.exports = {
   name: 'ichimoku',
@@ -18,7 +16,7 @@ module.exports = {
     this.option('chikou','Chikou (lagging) span)', Number, 26)
   },
 
-  calculate: function (s) {
+  calculate: function () {
   },
 
   onPeriod: function (s, cb) {
@@ -58,8 +56,8 @@ module.exports = {
     cb()
   },
 
-  onReport: function (s) {
-    var cols = []
+  onReport: function () {
+    const cols = []
     return cols
   },
 

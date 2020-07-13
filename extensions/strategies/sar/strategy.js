@@ -1,6 +1,6 @@
-var z = require('zero-fill')
-  , n = require('numbro')
-  , Phenotypes = require('../../../lib/phenotype')
+const z = require('zero-fill')
+const n = require('numbro')
+const Phenotypes = require('../../../lib/phenotype')
 
 module.exports =  {
   name: 'sar',
@@ -86,7 +86,7 @@ module.exports =  {
   },
 
   onReport: function (s) {
-    var cols = []
+    const cols = []
     if (typeof s.sar === 'number') {
       cols.push(z(8, n(s.sar).subtract(s.period.close).divide(s.period.close).format('0.00%'), ' ').grey)
     }

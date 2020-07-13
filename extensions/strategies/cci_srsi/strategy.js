@@ -1,9 +1,9 @@
-let z = require('zero-fill')
-  , n = require('numbro')
-  , ema = require('../../../lib/ema')
-  , srsi = require('../../../lib/srsi')
-  , cci = require('../../../lib/cci')
-  , Phenotypes = require('../../../lib/phenotype')
+const z = require('zero-fill')
+const n = require('numbro')
+const ema = require('../../../lib/ema')
+const srsi = require('../../../lib/srsi')
+const cci = require('../../../lib/cci')
+const Phenotypes = require('../../../lib/phenotype')
 
 module.exports = {
   name: 'cci_srsi',
@@ -88,9 +88,9 @@ module.exports = {
     cb()
   },
   onReport: function (s) {
-    var cols = []
+    const cols = []
     if (typeof s.period.cci === 'number') {
-      var color = 'grey'
+      let color = 'grey'
       if (s.period.cci > 0) {
         color = 'green'
       }

@@ -1,7 +1,7 @@
-let z = require('zero-fill')
-  , n = require('numbro')
-  , momentum = require('../../../lib/momentum')
-  , Phenotypes = require('../../../lib/phenotype')
+const z = require('zero-fill')
+const n = require('numbro')
+const momentum = require('../../../lib/momentum')
+const Phenotypes = require('../../../lib/phenotype')
 
 module.exports = {
   name: 'momentum',
@@ -14,7 +14,9 @@ module.exports = {
   },
 
   calculate: function (s) {
-    if (s.in_preroll) { return }
+    if (s.in_preroll) {
+      return
+    }
     momentum(s, 'mom0', 'close', s.options.momentum_size)
     momentum(s, 'mom1', 'mom0', 1)
   },
@@ -61,10 +63,10 @@ module.exports = {
     sell_stop_pct: Phenotypes.Range0(1, 50),
     buy_stop_pct: Phenotypes.Range0(1, 50),
     profit_stop_enable_pct: Phenotypes.Range0(1, 20),
-    profit_stop_pct: Phenotypes.Range(1,20),
+    profit_stop_pct: Phenotypes.Range(1, 20),
 
     // -- strategy
-    momentum_size: Phenotypes.Range(1,20)
+    momentum_size: Phenotypes.Range(1, 20)
   }
 }
 

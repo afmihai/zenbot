@@ -1,9 +1,9 @@
-var pivot = require('../pivot/strategy')
-var macd = require('../macd/strategy')
-var ehlers_ft = require('../ehlers_ft/strategy')
-var momentum = require('../momentum/strategy')
+const pivot = require('../pivot/strategy')
+const macd = require('../macd/strategy')
+const ehlers_ft = require('../ehlers_ft/strategy')
+const momentum = require('../momentum/strategy')
 
-var Phenotypes = require('../../../lib/phenotype')
+const Phenotypes = require('../../../lib/phenotype')
 
 module.exports = {
   name: 'multi',
@@ -12,12 +12,12 @@ module.exports = {
   getOptions: function () {
     this.option('period', 'period length, same as --period_length', String, '30m')
     this.option('period_length', 'period length, same as --period', String, '30m')
-    
+
     // PIVOT
     // this.option('period_length', 'period length', String, '30m')
     this.option('min_periods', 'min periods', Number, 50)
     this.option('up', 'up', Number, 1)
-    this.option('down','down', Number, 1)
+    this.option('down', 'down', Number, 1)
 
     // MACD / TA_MACD
     //this.option('period', 'period length, same as --period_length', String, '1h')
@@ -55,47 +55,51 @@ module.exports = {
   onPeriod: function (s, cb) {
     let totalBuy = 0
     let totalSell = 0
-    if(s && s.lookback && s.lookback.constructor === Array && s.lookback.length > 5 && s.lookback[1].high && s.lookback[5].high) {
-      pivot.onPeriod(s, function(){})
-      if(s.signal == 'buy') 
+    if (s && s.lookback && s.lookback.constructor === Array && s.lookback.length > 5 && s.lookback[1].high && s.lookback[5].high) {
+      pivot.onPeriod(s, function () {
+      })
+      if (s.signal == 'buy')
         totalBuy += 1
-      if(s.signal == 'sell') 
+      if (s.signal == 'sell')
         totalSell += 1
     }
-    macd.onPeriod(s, function(){})
-    if(s.signal == 'buy') 
+    macd.onPeriod(s, function () {
+    })
+    if (s.signal == 'buy')
       totalBuy += 1
-    if(s.signal == 'sell') 
+    if (s.signal == 'sell')
       totalSell += 1
-    ehlers_ft.onPeriod(s, function(){})
-    if(s.signal == 'buy') 
+    ehlers_ft.onPeriod(s, function () {
+    })
+    if (s.signal == 'buy')
       totalBuy += 1
-    if(s.signal == 'sell') 
+    if (s.signal == 'sell')
       totalSell += 1
-    momentum.onPeriod(s, function(){})
-    if(s.signal == 'buy') 
+    momentum.onPeriod(s, function () {
+    })
+    if (s.signal == 'buy')
       totalBuy += 1
-    if(s.signal == 'sell') 
+    if (s.signal == 'sell')
       totalSell += 1
-    
+
     s.signal = null
-    if(totalBuy >= 2 && totalBuy >= totalSell && totalSell == 0)
+    if (totalBuy >= 2 && totalBuy >= totalSell && totalSell == 0)
       s.signal = 'buy'
-    if(totalSell >= 2 && totalSell >= totalBuy && totalBuy == 0)
+    if (totalSell >= 2 && totalSell >= totalBuy && totalBuy == 0)
       s.signal = 'sell'
 
-    if(s.signal == 'buy' && s.stopTriggered) {
+    if (s.signal == 'buy' && s.stopTriggered) {
       s.stopTriggered = false
     }
 
-    if(s.signal == 'sell' && s.stopTriggered) {
+    if (s.signal == 'sell' && s.stopTriggered) {
       s.signal = null
     }
     return cb()
   },
 
   onReport: function (s) {
-    var cols = []
+    const cols = []
     return cols.concat(pivot.onReport(s), macd.onReport(s), ehlers_ft.onReport(s), momentum.onReport(s))
   },
 
@@ -130,7 +134,7 @@ module.exports = {
     src: Phenotypes.ListOption(['close', 'hl2', 'hlc3', 'ohlc4', 'HAhlc3', 'HAohlc4']),
 
     // momentum
-    momentum_size: Phenotypes.Range(1,20)
+    momentum_size: Phenotypes.Range(1, 20)
   }
 }
 

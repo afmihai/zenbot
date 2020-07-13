@@ -1,9 +1,9 @@
-var z = require('zero-fill')
-  , n = require('numbro')
-  , vwap = require('../../../lib/vwap')
-  , ema = require('../../../lib/ema')
-  , sma = require('../../../lib/sma')
-  , Phenotypes = require('../../../lib/phenotype')
+const z = require('zero-fill')
+const n = require('numbro')
+const vwap = require('../../../lib/vwap')
+const ema = require('../../../lib/ema')
+const sma = require('../../../lib/sma')
+const Phenotypes = require('../../../lib/phenotype')
 
 module.exports = {
   name: 'crossover_vwap',
@@ -45,14 +45,14 @@ module.exports = {
       vwapgold = s.period.vwap
 
       // helper functions
-    var trendUp = function(s){
+    const trendUp = function (s) {
         if (s.trend !== 'up') {
           s.acted_on_trend = false
         }
         s.trend = 'up'
         s.signal = !s.acted_on_trend ? 'buy' : null
       },
-      trendDown = function(s){
+      trendDown = function (s) {
         if (s.trend !== 'down') {
           s.acted_on_trend = false
         }
@@ -68,12 +68,12 @@ module.exports = {
   },
 
   onReport: function (s) {
-    var cols = []
+    const cols = []
     let emagreen = s.period.ema1,
       vwapgold = s.period.vwap
 
     if (vwapgold && emagreen) {
-      var color = 'green'
+      let color = 'green'
       if(vwapgold > emagreen) color = 'red'
 
       cols.push(z(6, n(vwapgold).format('0.00000'), '')['yellow'] + ' ')

@@ -1,11 +1,12 @@
-let math = require('mathjs')
-  , trend = require('trend')
-  , z = require('zero-fill')
-  , n = require('numbro')
-  , stats = require('stats-lite')
-  , ema = require('../../../lib/ema')
-  , Phenotypes = require('../../../lib/phenotype')
-var oldgrowth = 1
+const math = require('mathjs')
+const trend = require('trend')
+const z = require('zero-fill')
+const n = require('numbro')
+const stats = require('stats-lite')
+const ema = require('../../../lib/ema')
+const Phenotypes = require('../../../lib/phenotype')
+
+let oldgrowth = 1
 
 module.exports = {
   name: 'trendline',
@@ -29,23 +30,29 @@ module.exports = {
 
   onPeriod: function (s, cb) {
     ema(s, 'trendline', s.options.trendline)
-    var tl1 = []
-    var tls = []
-    var tll = []
+    const tl1 = []
+    const tls = []
+    const tll = []
     if (s.lookback[s.options.avgpoints + 2000]) {
-      for (let i = 0; i < s.options.avgpoints + 1000; i++) { tl1.push(s.lookback[i].close) }
-      for (let i = 0; i < s.options.lastpoints; i++) { tls.push(s.lookback[i].close) }
-      for (let i = 0; i < s.options.avgpoints; i++) { tll.push(s.lookback[i].close) }
+      for (let i = 0; i < s.options.avgpoints + 1000; i++) {
+        tl1.push(s.lookback[i].close)
+      }
+      for (let i = 0; i < s.options.lastpoints; i++) {
+        tls.push(s.lookback[i].close)
+      }
+      for (let i = 0; i < s.options.avgpoints; i++) {
+        tll.push(s.lookback[i].close)
+      }
 
-      var chart = tl1
+      const chart = tl1
 
-      var growth = trend(chart, {
+      const growth = trend(chart, {
         lastPoints: s.options.lastpoints,
         avgPoints: s.options.avgpoints,
         avgMinimum: 0,
         reversed: true
       })
-      var growth2 = trend(chart, {
+      const growth2 = trend(chart, {
         lastPoints: s.options.lastpoints2,
         avgPoints: s.options.avgpoints2,
         avgMinimum: 0,
@@ -70,23 +77,20 @@ module.exports = {
 
     if (
       s.growth === true &&
-         s.growth2 === true
-    )
-    {
+      s.growth2 === true
+    ) {
       s.signal = 'buy'
-    }
-    else if (
+    } else if (
       s.growth === false |
-         s.growth2 === false |
-         s.accel === false
-    )
-    {
+      s.growth2 === false |
+      s.accel === false
+    ) {
       //s.signal = 'sell'
     }
     cb()
   },
   onReport: function (s) {
-    var cols = []
+    const cols = []
     cols.push(' ')
     cols.push(z(8, n(s.stats).format('0.00000000'), ' ')[s.growth === true ? 'green' : 'red'])
     cols.push(' ')
@@ -114,7 +118,7 @@ module.exports = {
     sell_stop_pct: Phenotypes.Range0(1, 50),
     buy_stop_pct: Phenotypes.Range0(1, 50),
     profit_stop_enable_pct: Phenotypes.Range0(1, 20),
-    profit_stop_pct: Phenotypes.Range(1,20),
+    profit_stop_pct: Phenotypes.Range(1, 20),
 
     // -- strategy
     lastpoints: Phenotypes.Range(20, 500),

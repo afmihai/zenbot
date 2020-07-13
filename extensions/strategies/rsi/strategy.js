@@ -1,8 +1,8 @@
-var z = require('zero-fill')
-  , n = require('numbro')
-  , rsi = require('../../../lib/rsi')
-  , Phenotypes = require('../../../lib/phenotype')
-  , Asset_currency = require('../../../lib/engine')
+const z = require('zero-fill')
+const n = require('numbro')
+const rsi = require('../../../lib/rsi')
+const Phenotypes = require('../../../lib/phenotype')
+const Asset_currency = require('../../../lib/engine')
 
 module.exports = {
   name: 'rsi',
@@ -66,9 +66,9 @@ module.exports = {
   },
 
   onReport: function (s) {
-    var cols = []
+    const cols = []
     if (typeof s.period.rsi === 'number') {
-      var color = 'grey'
+      let color = 'grey'
       if (s.period.rsi <= s.options.oversold_rsi) {
         color = 'green'
       }
@@ -90,7 +90,7 @@ module.exports = {
     sell_stop_pct: Phenotypes.Range0(1, 50),
     buy_stop_pct: Phenotypes.Range0(1, 50),
     profit_stop_enable_pct: Phenotypes.Range0(1, 20),
-    profit_stop_pct: Phenotypes.Range(1,20),
+    profit_stop_pct: Phenotypes.Range(1, 20),
 
     // -- strategy
     rsi_periods: Phenotypes.Range(1, 200),

@@ -1,18 +1,18 @@
 /*
                     ======= Ehlers MESA Adaptive Moving Average =======
 
-Developed by John Ehlers, the MESA Adaptive Moving Average is a technical trend-following indicator which, 
-according to its creator, adapts to price movement “based on the rate change of phase as measured by the 
-Hilbert Transform Discriminator”. This method of adaptation features a fast and a slow moving average so 
-that the composite moving average swiftly responds to price changes and holds the average value until the 
-next bar’s close. Ehlers states that because the average’s fallback is slow, you can create trading systems 
+Developed by John Ehlers, the MESA Adaptive Moving Average is a technical trend-following indicator which,
+according to its creator, adapts to price movement “based on the rate change of phase as measured by the
+Hilbert Transform Discriminator”. This method of adaptation features a fast and a slow moving average so
+that the composite moving average swiftly responds to price changes and holds the average value until the
+next bar’s close. Ehlers states that because the average’s fallback is slow, you can create trading systems
 with almost whipsaw-free trades.
 
-Basically the indicator looks like two moving averages, but instead of curving around the price action, 
-the MESA Adaptive MA moves in a staircase manner as the price ratchets. It produces two outputs, MAMA and FAMA. 
-FAMA (Following Adaptive Moving Average) is a result of MAMA being applied to the first MAMA line. The FAMA 
-is synchronized in time with MAMA, but its vertical movement comes with a lag. Thus, the two don’t cross unless 
-a major change in market direction occurs, resulting in a moving average crossover system which is “virtually 
+Basically the indicator looks like two moving averages, but instead of curving around the price action,
+the MESA Adaptive MA moves in a staircase manner as the price ratchets. It produces two outputs, MAMA and FAMA.
+FAMA (Following Adaptive Moving Average) is a result of MAMA being applied to the first MAMA line. The FAMA
+is synchronized in time with MAMA, but its vertical movement comes with a lag. Thus, the two don’t cross unless
+a major change in market direction occurs, resulting in a moving average crossover system which is “virtually
 free of whipsaw trades”, according to Ehlers.
 
 If you appreciate the work and the man hours that went into creating this strategy, please consider giving back.
@@ -23,20 +23,20 @@ Travis      ETH = 0xdA963A127BeCB08227583d11f912F400D5347060 , BTC = 3KKHdBJpEGx
 */
 
 
-let z = require('zero-fill'),
-  n = require('numbro'),
-  Phenotypes = require('../../../lib/phenotype'),
-  crossover = require('../../../lib/helpers').crossover,
-  crossunder = require('../../../lib/helpers').crossunder,
-  nz = require('../../../lib/helpers').nz,
-  iff = require('../../../lib/helpers').iff,
-  tv = require('../../../lib/helpers')
+const z = require('zero-fill')
+const n = require('numbro')
+const Phenotypes = require('../../../lib/phenotype')
+const crossover = require('../../../lib/helpers').crossover
+const crossunder = require('../../../lib/helpers').crossunder
+const nz = require('../../../lib/helpers').nz
+const iff = require('../../../lib/helpers').iff
+const tv = require('../../../lib/helpers')
 
 module.exports = {
   name: 'Ehlers MAMA',
   description: 'Ehlers MESA Adaptive Moving Average',
 
-  getOptions: function() {
+  getOptions: function () {
     this.option('period', 'period length eg 10m', String, '60m')
     this.option('min_periods', 'min. number of history periods', Number, 6)
 
@@ -47,9 +47,10 @@ module.exports = {
 
   },
 
-  calculate: function() {},
+  calculate: function () {
+  },
 
-  onPeriod: function(s, cb) {
+  onPeriod: function (s, cb) {
 
     if (!s.mama) {
       s.mama = {
@@ -73,15 +74,15 @@ module.exports = {
     }
 
     if (s.lookback.length > s.options.min_periods) {
-      if(!s.options.price_source || s.options.price_source === 'close'){
+      if (!s.options.price_source || s.options.price_source === 'close') {
         s.mama.src.unshift(s.period.close)
-      } else if (s.options.price_source === 'hl2'){
+      } else if (s.options.price_source === 'hl2') {
         s.mama.src.unshift(tv.hl2(s.period))
-      } else if (s.options.price_source === 'hlc3'){
+      } else if (s.options.price_source === 'hlc3') {
         s.mama.src.unshift(tv.hlc3(s.period))
-      } else if (s.options.price_source === 'ohlc4'){
+      } else if (s.options.price_source === 'ohlc4') {
         s.mama.src.unshift(tv.ohlc4(s.period))
-      } else if (s.options.price_source === 'HAohlc4'){
+      } else if (s.options.price_source === 'HAohlc4') {
         s.mama.src.unshift(tv.HAohlc4(s))
       }
 
@@ -114,7 +115,9 @@ module.exports = {
       s.mama.fama.unshift(.5 * alpha * s.mama.mama[0] + (1 - .5 * alpha) * nz(s.mama.fama[0]))
 
       s.period.mama = s.mama.mama[0]
-      if (s.options.debug) {console.log('s.mama.mama: ' + s.mama.mama[0])}
+      if (s.options.debug) {
+        console.log('s.mama.mama: ' + s.mama.mama[0])
+      }
       s.period.fama = s.mama.fama[0]
 
       if (s.mama.src.length > 7)
@@ -124,12 +127,12 @@ module.exports = {
 
 
       if (!s.in_preroll) {
-        
+
         if (crossover(s, 'mama', 'fama'))
           s.signal = 'buy'
         else if (crossunder(s, 'mama', 'fama'))
           s.signal = 'sell'
-        else 
+        else
           s.signal = null
       }
     }
@@ -137,11 +140,11 @@ module.exports = {
   },
 
 
-  onReport: function(s) {
-    var cols = []
+  onReport: function (s) {
+    const cols = []
     let color = 'cyan'
     let FamaMamaDelta = (s.period.mama - s.period.fama) / s.period.mama * 100
-    
+
     if (s.period.fama < s.period.mama) {
       color = 'green'
     } else if (s.period.fama > s.period.mama) {

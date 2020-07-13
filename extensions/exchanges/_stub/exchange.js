@@ -2,7 +2,7 @@ const superagent = require('superagent')
 
 module.exports = function container (conf) {
 
-  var theExchange = {}
+  let theExchange = {}
 
   // TODO: phase out, in favor of calling the method getDirection().
   //  It will help define a clean interface/design for future exchange plugins.
@@ -13,7 +13,7 @@ module.exports = function container (conf) {
   theExchange.getName = function() {
     return 'stub'
   }
-    
+
   theExchange.getDirection = function() {
     return 'backward'
   }
@@ -31,20 +31,20 @@ module.exports = function container (conf) {
   }
 
   theExchange.getTrades = function (opts, cb) {
-    var url = 'http://localhost:7802/'
+    let url = 'http://localhost:7802/'
 
     if (opts.to !== undefined) {
       url += '?mostRecentTradeId=' + opts.to
     }
 
     superagent.get(url).end(function (err, response) {
-      var v = JSON.parse(response.text)
+      const v = JSON.parse(response.text)
 
-      var rtn = []
-      v.forEach((vv) => { 
-        var obj = JSON.parse(vv) 
+      const rtn = []
+      v.forEach((vv) => {
+        const obj = JSON.parse(vv)
 
-        obj.id = 
+        obj.id =
 
           rtn.push(obj) })
 

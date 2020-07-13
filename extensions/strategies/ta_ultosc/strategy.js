@@ -1,8 +1,8 @@
-var z = require('zero-fill')
-  , n = require('numbro')
-  , rsi = require('../../../lib/rsi')
-  , ultosc = require('../../../lib/ta_ultosc')
-  , Phenotypes = require('../../../lib/phenotype')
+const z = require('zero-fill')
+const n = require('numbro')
+const rsi = require('../../../lib/rsi')
+const ultosc = require('../../../lib/ta_ultosc')
+const Phenotypes = require('../../../lib/phenotype')
 
 module.exports = {
   name: 'ta_ultosc',
@@ -43,19 +43,19 @@ module.exports = {
       }
     }
 
-    ultosc(s, s.options.min_periods, s.options.timeperiod1, s.options.timeperiod2, s.options.timeperiod3).then(function(signal) {
+    ultosc(s, s.options.min_periods, s.options.timeperiod1, s.options.timeperiod2, s.options.timeperiod3).then(function (signal) {
       s.period['ultosc'] = signal
 
       let t = s.signales || {}
 
-      var signals = {
+      const signals = {
         bottom: t.bottom || 0, // 30 line
         top: t.top || 0, // 70 line
       }
 
       if (s.period.ultosc && s.period.ultosc > 0) {
 
-        if (s.options.signal == 'simple') {
+        if (s.options.signal === 'simple') {
           // use defensive indicator trigger
 
           if (s.period.ultosc > 65) {
@@ -64,20 +64,20 @@ module.exports = {
             s.period.trend_ultosc = 'down'
           }
 
-        } else if (s.options.signal == 'low') {
+        } else if (s.options.signal === 'low') {
           // use recovery indicator trigger
 
-          if(s.period.ultosc > 65) {
+          if (s.period.ultosc > 65) {
             s.period.trend_ultosc = 'up'
-          } else if(s.period.ultosc < 30 && signals.bottom == 0) {
+          } else if (s.period.ultosc < 30 && signals.bottom == 0) {
             s.period.trend_ultosc = 'down'
           }
-        } else if (s.options.signal == 'trend') {
+        } else if (s.options.signal === 'trend') {
           // lets got with the masses
 
-          if(s.period.ultosc > 30 && signals.bottom > 0) {
+          if (s.period.ultosc > 30 && signals.bottom > 0) {
             s.period.trend_ultosc = 'up'
-          } else if(s.period.ultosc < 70 && signals.top > 0) {
+          } else if (s.period.ultosc < 70 && signals.top > 0) {
             s.period.trend_ultosc = 'down'
           }
         }
@@ -88,14 +88,14 @@ module.exports = {
         s.signales = signals
       }
 
-      if (s.period.trend_ultosc == 'up') {
+      if (s.period.trend_ultosc === 'up') {
         if (s.trend !== 'up') {
           s.acted_on_trend = false
         }
 
         s.trend = 'up'
         s.signal = !s.acted_on_trend ? 'buy' : null
-      } else if (s.period.trend_ultosc == 'down') {
+      } else if (s.period.trend_ultosc === 'down') {
         if (s.trend !== 'down') {
           s.acted_on_trend = false
         }
@@ -105,7 +105,7 @@ module.exports = {
       }
 
       cb()
-    }).catch(function(error) {
+    }).catch(function (error) {
       console.log(error)
       cb()
     })
@@ -140,12 +140,12 @@ module.exports = {
     sell_stop_pct: Phenotypes.Range0(1, 50),
     buy_stop_pct: Phenotypes.Range0(1, 50),
     profit_stop_enable_pct: Phenotypes.Range0(1, 20),
-    profit_stop_pct: Phenotypes.Range(1,20),
+    profit_stop_pct: Phenotypes.Range(1, 20),
 
     signal: Phenotypes.ListOption(['simple', 'low', 'trend']),
-    timeperiod1: Phenotypes.Range(1,50),
-    timeperiod2: Phenotypes.Range(1,50),
-    timeperiod3: Phenotypes.Range(1,50),
+    timeperiod1: Phenotypes.Range(1, 50),
+    timeperiod2: Phenotypes.Range(1, 50),
+    timeperiod3: Phenotypes.Range(1, 50),
     overbought_rsi_periods: Phenotypes.Range(1, 50),
     overbought_rsi: Phenotypes.Range(20, 100)
   }

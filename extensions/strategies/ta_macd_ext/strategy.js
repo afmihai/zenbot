@@ -1,8 +1,8 @@
-var z = require('zero-fill')
-  , n = require('numbro')
-  , rsi = require('../../../lib/rsi')
-  , ta_macd_ext = require('../../../lib/ta_macd_ext')
-  , Phenotypes = require('../../../lib/phenotype')
+const z = require('zero-fill')
+const n = require('numbro')
+const rsi = require('../../../lib/rsi')
+const ta_macd_ext = require('../../../lib/ta_macd_ext')
+const Phenotypes = require('../../../lib/phenotype')
 
 module.exports = {
   name: 'ta_macd_ext',
@@ -102,9 +102,9 @@ module.exports = {
   },
 
   onReport: function (s) {
-    var cols = []
+    const cols = []
     if (typeof s.period.macd_histogram === 'number') {
-      var color = 'grey'
+      let color = 'grey'
       if (s.period.macd_histogram > 0) {
         color = 'green'
       }

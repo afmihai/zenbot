@@ -1,5 +1,5 @@
-var z = require('zero-fill'),
-  n = require('numbro')
+const z = require('zero-fill')
+const n = require('numbro')
 
 module.exports = {
   name: 'pivot',
@@ -9,7 +9,7 @@ module.exports = {
     this.option('period_length', 'period length', String, '30m')
     this.option('min_periods', 'min periods', Number, 50)
     this.option('up', 'up', Number, 1)
-    this.option('down','down', Number, 1)
+    this.option('down', 'down', Number, 1)
   },
 
   calculate: function (s) {
@@ -26,15 +26,13 @@ module.exports = {
   onPeriod: function (s, cb) {
     if (s.lookback[s.options.min_periods]) {
       if (s.period.high / s.pivothigh > s.options.up) {
-        if (s.trend != 'up')
-        {
+        if (s.trend !== 'up') {
           s.signal = 'buy'
         }
         s.trend = 'up'
       }
       if (s.period.low / s.pivotlow < s.options.down) {
-        if (s.trend != 'down')
-        {
+        if (s.trend !== 'down') {
           s.signal = 'sell'
         }
         s.trend = 'down'
@@ -44,7 +42,7 @@ module.exports = {
   },
 
   onReport: function (s) {
-    var cols = []
+    const cols = []
     if (s.lookback[s.options.min_periods]) {
       cols.push(z(8, n(s.pivothigh), ' '))
       cols.push(z(1, ' '))

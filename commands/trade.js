@@ -1,20 +1,20 @@
-var tb = require('timebucket')
-  , minimist = require('minimist')
-  , n = require('numbro')
-  , fs = require('fs')
-  , path = require('path')
-  , spawn = require('child_process').spawn
-  , moment = require('moment')
-  , crypto = require('crypto')
-  , readline = require('readline')
-  , colors = require('colors')
-  , z = require('zero-fill')
-  , cliff = require('cliff')
-  , output = require('../lib/output')
-  , objectifySelector = require('../lib/objectify-selector')
-  , engineFactory = require('../lib/engine')
-  , collectionService = require('../lib/services/collection-service')
-  , debug = require('../lib/debug')
+const tb = require('timebucket')
+const minimist = require('minimist')
+const n = require('numbro')
+const fs = require('fs')
+const path = require('path')
+const spawn = require('child_process').spawn
+const moment = require('moment')
+const crypto = require('crypto')
+const readline = require('readline')
+const colors = require('colors')
+const z = require('zero-fill')
+const cliff = require('cliff')
+const output = require('../lib/output')
+const objectifySelector = require('../lib/objectify-selector')
+const engineFactory = require('../lib/engine')
+const collectionService = require('../lib/services/collection-service')
+const debug = require('../lib/debug')
 
 module.exports = function (program, conf) {
   program
@@ -63,9 +63,9 @@ module.exports = function (program, conf) {
     .option('--quarentine_time <minutes>', 'For loss trade, set quarentine time for cancel buys', Number, conf.quarentine_time)
     .option('--debug', 'output detailed debug info')
     .action(function (selector, cmd) {
-      var raw_opts = minimist(process.argv)
-      var s = {options: JSON.parse(JSON.stringify(raw_opts))}
-      var so = s.options
+      const raw_opts = minimist(process.argv)
+      const s = {options: JSON.parse(JSON.stringify(raw_opts))}
+      const so = s.options
       if (so.run_for) {
         var botStartTime = moment().add(so.run_for, 'm')
       }
@@ -77,7 +77,7 @@ module.exports = function (program, conf) {
       }
       delete so._
       if (cmd.conf) {
-        var overrides = require(path.resolve(process.cwd(), cmd.conf))
+        const overrides = require(path.resolve(process.cwd(), cmd.conf))
         Object.keys(overrides).forEach(function (k) {
           so[k] = overrides[k]
         })
@@ -98,9 +98,9 @@ module.exports = function (program, conf) {
         console.log(('--buy_max_amt is deprecated, use --deposit instead!\n').red)
         so.deposit = so.buy_max_amt
       }
-      so.selector = objectifySelector(selector || conf.selector)      
-      var engine = engineFactory(s, conf)
-      var collectionServiceInstance = collectionService(conf)
+      so.selector = objectifySelector(selector || conf.selector)
+      const engine = engineFactory(s, conf)
+      const collectionServiceInstance = collectionService(conf)
       if (!so.min_periods) so.min_periods = 1
 
       const keyMap = new Map()
@@ -120,7 +120,7 @@ module.exports = function (program, conf) {
       keyMap.set('d', 'dump statistical output to HTML file'.grey)
       keyMap.set('D', 'toggle automatic HTML dump to file'.grey)
 
-      var pushStr = ''
+      let pushStr = ''
 
       function listKeys() {
         printLog('Available command keys:', true)
@@ -162,7 +162,7 @@ module.exports = function (program, conf) {
 
       /* Implementing statistical Exit */
       function printTrade (quit, dump, statsonly = false) {
-        var tmp_balance = n(s.balance.currency).add(n(s.period.close).multiply(s.balance.asset)).format('0.00000000')
+        const tmp_balance = n(s.balance.currency).add(n(s.period.close).multiply(s.balance.asset)).format('0.00000000')
         if (quit) {
           if (s.my_trades.length) {
             s.my_trades.push({
@@ -176,9 +176,9 @@ module.exports = function (program, conf) {
           s.balance.asset = 0
           s.lookback.unshift(s.period)
         }
-        var profit = s.start_capital ? n(tmp_balance).subtract(s.start_capital).divide(s.start_capital) : n(0)
-        var buy_hold = s.start_price ? n(s.period.close).multiply(n(s.start_capital).divide(s.start_price)) : n(tmp_balance)
-        var buy_hold_profit = s.start_capital ? n(buy_hold).subtract(s.start_capital).divide(s.start_capital) : n(0)
+        const profit = s.start_capital ? n(tmp_balance).subtract(s.start_capital).divide(s.start_capital) : n(0)
+        const buy_hold = s.start_price ? n(s.period.close).multiply(n(s.start_capital).divide(s.start_price)) : n(tmp_balance)
+        const buy_hold_profit = s.start_capital ? n(buy_hold).subtract(s.start_capital).divide(s.start_capital) : n(0)
         if (!statsonly) {
           console.log()
           var output_lines = []
@@ -197,8 +197,8 @@ module.exports = function (program, conf) {
           trade_per_day: n(s.my_trades.length / s.day_count).format('0.00')
         }
 
-        var last_buy
-        var losses = 0, sells = 0
+        let last_buy
+        let losses = 0, sells = 0
         s.my_trades.forEach(function (trade) {
           if (trade.type === 'buy') {
             last_buy = trade.price
@@ -227,33 +227,33 @@ module.exports = function (program, conf) {
           })
         }
         if (quit || dump) {
-          var html_output = output_lines.map(function (line) {
+          const html_output = output_lines.map(function (line) {
             return colors.stripColors(line)
           }).join('\n')
-          var data = s.lookback.slice(0, s.lookback.length - so.min_periods).map(function (period) {
-            var data = {}
-            var keys = Object.keys(period)
-            for(var i = 0; i < keys.length; i++){
+          const data = s.lookback.slice(0, s.lookback.length - so.min_periods).map(function (period) {
+            const data = {}
+            const keys = Object.keys(period)
+            for (let i = 0; i < keys.length; i++) {
               data[keys[i]] = period[keys[i]]
             }
             return data
           })
-          var code = 'var data = ' + JSON.stringify(data) + ';\n'
+          let code = 'var data = ' + JSON.stringify(data) + ';\n'
           code += 'var trades = ' + JSON.stringify(s.my_trades) + ';\n'
-          var tpl = fs.readFileSync(path.resolve(__dirname, '..', 'templates', 'sim_result.html.tpl'), {encoding: 'utf8'})
-          var out = tpl
+          const tpl = fs.readFileSync(path.resolve(__dirname, '..', 'templates', 'sim_result.html.tpl'), {encoding: 'utf8'})
+          const out = tpl
             .replace('{{code}}', code)
             .replace('{{trend_ema_period}}', so.trend_ema || 36)
             .replace('{{output}}', html_output)
-            .replace(/\{\{symbol\}\}/g,  so.selector.normalized + ' - zenbot ' + require('../package.json').version)
+            .replace(/\{\{symbol\}\}/g, so.selector.normalized + ' - zenbot ' + require('../package.json').version)
           if (so.filename !== 'none') {
-            var out_target
-            var out_target_prefix = so.paper ? 'simulations/paper_result_' : 'stats/trade_result_'
+            let out_target
+            const out_target_prefix = so.paper ? 'simulations/paper_result_' : 'stats/trade_result_'
             if(dump){
-              var dt = new Date().toISOString()
+              const dt = new Date().toISOString()
 
               //ymd
-              var today = dt.slice(2, 4) + dt.slice(5, 7) + dt.slice(8, 10)
+              const today = dt.slice(2, 4) + dt.slice(5, 7) + dt.slice(8, 10)
               out_target = so.filename || out_target_prefix + so.selector.normalized +'_' + today + '_UTC.html'
               fs.writeFileSync(out_target, out)
             }else
@@ -268,7 +268,8 @@ module.exports = function (program, conf) {
       /* The end of printTrade */
 
       /* Implementing statistical status dump every 10 secs */
-      var shouldSaveStats = false
+      let shouldSaveStats = false
+
       function toggleStats(){
         shouldSaveStats = !shouldSaveStats
         if(shouldSaveStats)
@@ -288,13 +289,13 @@ module.exports = function (program, conf) {
       function saveStats () {
         if(!shouldSaveStats) return
 
-        var output_lines = []
-        var tmp_balance = n(s.balance.currency).add(n(s.period.close).multiply(s.balance.asset)).format('0.00000000')
+        const output_lines = []
+        const tmp_balance = n(s.balance.currency).add(n(s.period.close).multiply(s.balance.asset)).format('0.00000000')
 
-        var profit = s.start_capital ? n(tmp_balance).subtract(s.start_capital).divide(s.start_capital) : n(0)
+        const profit = s.start_capital ? n(tmp_balance).subtract(s.start_capital).divide(s.start_capital) : n(0)
         output_lines.push('last balance: ' + n(tmp_balance).format('0.00000000').yellow + ' (' + profit.format('0.00%') + ')')
-        var buy_hold = s.start_price ? n(s.period.close).multiply(n(s.start_capital).divide(s.start_price)) : n(tmp_balance)
-        var buy_hold_profit = s.start_capital ? n(buy_hold).subtract(s.start_capital).divide(s.start_capital) : n(0)
+        const buy_hold = s.start_price ? n(s.period.close).multiply(n(s.start_capital).divide(s.start_price)) : n(tmp_balance)
+        const buy_hold_profit = s.start_capital ? n(buy_hold).subtract(s.start_capital).divide(s.start_capital) : n(0)
         output_lines.push('buy hold: ' + buy_hold.format('0.00000000').yellow + ' (' + n(buy_hold_profit).format('0.00%') + ')')
         output_lines.push('vs. buy hold: ' + n(tmp_balance).subtract(buy_hold).divide(buy_hold).format('0.00%').yellow)
         output_lines.push(s.my_trades.length + ' trades over ' + s.day_count + ' days (avg ' + n(s.my_trades.length / s.day_count).format('0.00') + ' trades/day)')
@@ -308,8 +309,8 @@ module.exports = function (program, conf) {
           trade_per_day: n(s.my_trades.length / s.day_count).format('0.00')
         }
 
-        var last_buy
-        var losses = 0, sells = 0
+        let last_buy
+        let losses = 0, sells = 0
         s.my_trades.forEach(function (trade) {
           if (trade.type === 'buy') {
             last_buy = trade.price
@@ -331,31 +332,31 @@ module.exports = function (program, conf) {
           s.stats.error_rate = (sells ? n(losses).divide(sells).format('0.00%') : '0.00%')
         }
 
-        var html_output = output_lines.map(function (line) {
+        const html_output = output_lines.map(function (line) {
           return colors.stripColors(line)
         }).join('\n')
-        var data = s.lookback.slice(0, s.lookback.length - so.min_periods).map(function (period) {
-          var data = {}
-          var keys = Object.keys(period)
-          for(var i = 0; i < keys.length; i++){
+        const data = s.lookback.slice(0, s.lookback.length - so.min_periods).map(function (period) {
+          const data = {}
+          const keys = Object.keys(period)
+          for (let i = 0; i < keys.length; i++) {
             data[keys[i]] = period[keys[i]]
           }
           return data
         })
-        var code = 'var data = ' + JSON.stringify(data) + ';\n'
+        let code = 'var data = ' + JSON.stringify(data) + ';\n'
         code += 'var trades = ' + JSON.stringify(s.my_trades) + ';\n'
-        var tpl = fs.readFileSync(path.resolve(__dirname, '..', 'templates', 'sim_result.html.tpl'), {encoding: 'utf8'})
-        var out = tpl
+        const tpl = fs.readFileSync(path.resolve(__dirname, '..', 'templates', 'sim_result.html.tpl'), {encoding: 'utf8'})
+        const out = tpl
           .replace('{{code}}', code)
           .replace('{{trend_ema_period}}', so.trend_ema || 36)
           .replace('{{output}}', html_output)
-          .replace(/\{\{symbol\}\}/g,  so.selector.normalized + ' - zenbot ' + require('../package.json').version)
+          .replace(/\{\{symbol\}\}/g, so.selector.normalized + ' - zenbot ' + require('../package.json').version)
         if (so.filename !== 'none') {
-          var out_target
-          var dt = new Date().toISOString()
+          let out_target
+          const dt = new Date().toISOString()
 
           //ymd
-          var today = dt.slice(2, 4) + dt.slice(5, 7) + dt.slice(8, 10)
+          const today = dt.slice(2, 4) + dt.slice(5, 7) + dt.slice(8, 10)
           let out_target_prefix = so.paper ? 'simulations/paper_result_' : 'stats/trade_result_'
           out_target = so.filename || out_target_prefix + so.selector.normalized +'_' + today + '_UTC.html'
 
@@ -373,7 +374,7 @@ module.exports = function (program, conf) {
       }
 
       function executeCommand(command) {
-        var info = { ctrl: false }
+        const info = {ctrl: false}
         if (conf.debug) {
           console.log('\nCommand received: ' + command)
         }
@@ -438,20 +439,20 @@ module.exports = function (program, conf) {
         }
       }
 
-      var order_types = ['maker', 'taker']
+      const order_types = ['maker', 'taker']
       if (!order_types.includes(so.order_type)) {
         so.order_type = 'maker'
       }
 
-      var db_cursor, trade_cursor
-      var query_start = tb().resize(so.period_length).subtract(so.min_periods * 2).toMilliseconds()
-      var days = Math.ceil((new Date().getTime() - query_start) / 86400000)
-      var session = null
-      var sessions = collectionServiceInstance.getSessions()
-      var balances = collectionServiceInstance.getBalances()
-      var trades = collectionServiceInstance.getTrades()
-      var resume_markers = collectionServiceInstance.getResumeMarkers()
-      var marker = {
+      let db_cursor, trade_cursor
+      const query_start = tb().resize(so.period_length).subtract(so.min_periods * 2).toMilliseconds()
+      const days = Math.ceil((new Date().getTime() - query_start) / 86400000)
+      let session = null
+      const sessions = collectionServiceInstance.getSessions()
+      const balances = collectionServiceInstance.getBalances()
+      const trades = collectionServiceInstance.getTrades()
+      const resume_markers = collectionServiceInstance.getResumeMarkers()
+      const marker = {
         id: crypto.randomBytes(4).toString('hex'),
         selector: so.selector.normalized,
         from: null,
@@ -459,18 +460,18 @@ module.exports = function (program, conf) {
         oldest_time: null
       }
       marker._id = marker.id
-      var lookback_size = 0
-      var my_trades_size = 0
-      var my_trades = collectionServiceInstance.getMyTrades()
-      var periods = collectionServiceInstance.getPeriods()
+      let lookback_size = 0
+      let my_trades_size = 0
+      const my_trades = collectionServiceInstance.getMyTrades()
+      const periods = collectionServiceInstance.getPeriods()
 
       console.log('fetching pre-roll data:')
-      var zenbot_cmd = process.platform === 'win32' ? 'zenbot.bat' : 'zenbot.sh' // Use 'win32' for 64 bit windows too
-      var command_args = ['backfill', so.selector.normalized, '--days', days || 1]
+      const zenbot_cmd = process.platform === 'win32' ? 'zenbot.bat' : 'zenbot.sh' // Use 'win32' for 64 bit windows too
+      const command_args = ['backfill', so.selector.normalized, '--days', days || 1]
       if (cmd.conf) {
         command_args.push('--conf', cmd.conf)
       }
-      var backfiller = spawn(path.resolve(__dirname, '..', zenbot_cmd), command_args)
+      const backfiller = spawn(path.resolve(__dirname, '..', zenbot_cmd), command_args)
       backfiller.stdout.pipe(process.stdout)
       backfiller.stderr.pipe(process.stderr)
       backfiller.on('exit', function (code) {
@@ -478,7 +479,7 @@ module.exports = function (program, conf) {
           process.exit(code)
         }
         function getNext () {
-          var opts = {
+          const opts = {
             query: {
               selector: so.selector.normalized
             },
@@ -512,10 +513,10 @@ module.exports = function (program, conf) {
               })
             }
             if (!trades.length) {
-              var head = '------------------------------------------ INITIALIZE  OUTPUT ------------------------------------------'
+              const head = '------------------------------------------ INITIALIZE  OUTPUT ------------------------------------------'
               console.log(head)
               output(conf).initializeOutput(s)
-              var minuses = Math.floor((head.length - so.mode.length - 19) / 2)
+              const minuses = Math.floor((head.length - so.mode.length - 19) / 2)
               console.log('-'.repeat(minuses) + ' STARTING ' + so.mode.toUpperCase() + ' TRADING ' + '-'.repeat(minuses + (minuses % 2 == 0 ? 0 : 1)))
               if (so.mode === 'paper') {
                 console.log('!!! Paper mode enabled. No real trades are performed until you remove --paper from the startup command.')
@@ -537,7 +538,7 @@ module.exports = function (program, conf) {
                 session._id = session.id
                 sessions.find({selector: so.selector.normalized}).limit(1).sort({started: -1}).toArray(function (err, prev_sessions) {
                   if (err) throw err
-                  var prev_session = prev_sessions[0]
+                  const prev_session = prev_sessions[0]
                   if (prev_session && !cmd.reset_profit) {
                     if (prev_session.orig_capital && prev_session.orig_price && prev_session.deposit === so.deposit && ((so.mode === 'paper' && !raw_opts.currency_capital && !raw_opts.asset_capital) || (so.mode === 'live' && prev_session.balance.asset == s.balance.asset && prev_session.balance.currency == s.balance.currency))) {
                       s.orig_capital = session.orig_capital = prev_session.orig_capital
@@ -577,7 +578,8 @@ module.exports = function (program, conf) {
         getNext()
       })
 
-      var prev_timeout = null
+      let prev_timeout = null
+
       function forwardScan () {
         function saveSession () {
           engine.syncBalance(function (err) {
@@ -607,8 +609,8 @@ module.exports = function (program, conf) {
             if (!session.orig_price) session.orig_price = s.start_price
             if (s.period) {
               session.price = s.period.close
-              var d = tb().resize(conf.balance_snapshot_period)
-              var b = {
+              const d = tb().resize(conf.balance_snapshot_period)
+              const b = {
                 id: so.selector.normalized + '-' + d.toString(),
                 selector: so.selector.normalized,
                 time: d.toMilliseconds(),
@@ -656,7 +658,8 @@ module.exports = function (program, conf) {
             })
           })
         }
-        var opts = {
+
+        const opts = {
           product_id: so.selector.product_id,
           from: trade_cursor + 1
         }
@@ -688,7 +691,7 @@ module.exports = function (program, conf) {
               return 0
             })
             trades.forEach(function (trade) {
-              var this_cursor = s.exchange.getCursor(trade)
+              const this_cursor = s.exchange.getCursor(trade)
               trade_cursor = Math.max(this_cursor, trade_cursor)
               saveTrade(trade)
             })

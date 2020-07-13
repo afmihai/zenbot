@@ -1,8 +1,8 @@
-var z = require('zero-fill')
-  , n = require('numbro')
-  , rsi = require('../../../lib/rsi')
-  , ti_hma = require('../../../lib/ti_hma')
-  , Phenotypes = require('../../../lib/phenotype')
+const z = require('zero-fill')
+const n = require('numbro')
+const rsi = require('../../../lib/rsi')
+const ti_hma = require('../../../lib/ti_hma')
+const Phenotypes = require('../../../lib/phenotype')
 
 module.exports = {
   name: 'ti_hma',
@@ -71,10 +71,10 @@ module.exports = {
   },
 
   onReport: function (s) {
-    var cols = []
+    const cols = []
 
     if (typeof s.period.trend_hma === 'number') {
-      var color = 'grey'
+      let color = 'grey'
 
       if (s.period.trend_hma_rate > 0) {
         color = 'green'

@@ -1,4 +1,3 @@
-
 //                    ======= Ichimoku Signals Score =======
 
 /*
@@ -26,11 +25,11 @@ Travis      ETH = 0xdA963A127BeCB08227583d11f912F400D5347060 , BTC = 3KKHdBJpEGx
 */
 
 
-let z = require('zero-fill')
-  , n = require('numbro')
-  , Phenotypes = require('../../../lib/phenotype')
-  , crossover = require('../../../lib/helpers').crossover
-  , crossunder = require('../../../lib/helpers').crossunder
+const z = require('zero-fill')
+const n = require('numbro')
+const Phenotypes = require('../../../lib/phenotype')
+const crossover = require('../../../lib/helpers').crossover
+const crossunder = require('../../../lib/helpers').crossunder
 
 module.exports = {
   name: 'ichimoku_score',
@@ -69,7 +68,6 @@ module.exports = {
     if (s.lookback.length > s.options.min_periods) {
 
 
-
       // == == generate ichimoku data == ==
 
 
@@ -94,7 +92,7 @@ module.exports = {
         s.period.tkCrossScore = calcTkCross(s, s.lookback[0].tkCrossScore)
         s.period.pkCrossScore = calcPkCross(s, s.lookback[0].pkCrossScore)
         s.period.kumoBreakoutScore = calcKumoBreakout(s, s.lookback[0].kumoBreakoutScore)
-        s.period.senkouCrossScore =  calcSenkouCross(s, s.lookback[0].senkouCrossScore)
+        s.period.senkouCrossScore = calcSenkouCross(s, s.lookback[0].senkouCrossScore)
         s.period.chikouCrossScore = calcChikouCross(s, s.lookback[0].chikouCrossScore)
         s.period.pricePlacementScore = calcPricePlacement(s, s.lookback[0].pricePlacementScore)
         s.period.chikouPlacementScore = calcChikouPlacement(s, s.lookback[0].chikouPlacementScore)
@@ -119,52 +117,106 @@ module.exports = {
 
     //    == Debugging ==
 
-    if (s.options.debug) {console.log('\n== Options ==')}
+    if (s.options.debug) {
+      console.log('\n== Options ==')
+    }
 
-    if (s.options.debug) {console.log('tenkenSenPeriods: ' + s.options.tenkenSenPeriods)}
-    if (s.options.debug) {console.log('kijunSenPeriods: ' + s.options.kijunSenPeriods)}
-    if (s.options.debug) {console.log('senkouSpanPeriods: ' + s.options.senkouSpanPeriods)}
-    if (s.options.debug) {console.log('displacement: ' + s.options.displacement)}
+    if (s.options.debug) {
+      console.log('tenkenSenPeriods: ' + s.options.tenkenSenPeriods)
+    }
+    if (s.options.debug) {
+      console.log('kijunSenPeriods: ' + s.options.kijunSenPeriods)
+    }
+    if (s.options.debug) {
+      console.log('senkouSpanPeriods: ' + s.options.senkouSpanPeriods)
+    }
+    if (s.options.debug) {
+      console.log('displacement: ' + s.options.displacement)
+    }
 
-    if (s.options.debug) {console.log('buyLevel: ' + s.options.buyLevel)}
-    if (s.options.debug) {console.log('sellLevel: ' + s.options.sellLevel)}
-
-
-    if (s.options.debug) {console.log('\n== Ichimoku Data ==')}
-
-    if (s.options.debug) {console.log('Tenken-Sen (conversion Line):' + s.period.tenkenSen)}
-    if (s.options.debug) {console.log('Kijun-Sen (Base Line):' + s.period.kijunSen)}
-    if (s.options.debug) {console.log('senkouA (Leading):' + s.period.senkouA)}
-    if (s.options.debug) {console.log('senkouB (Leading):' + s.period.senkouB)}
-
-
-    if (s.options.debug) {console.log('\n== Calculate Score ==')}
-
-    if (s.options.debug) {console.log('tkCrossScore:' + s.period.tkCrossScore)}
-    if (s.options.debug) {console.log('pkCrossScore:' + s.period.pkCrossScore)}
-    if (s.options.debug) {console.log('kumoBreakoutScore:' + s.period.kumoBreakoutScore)}
-    if (s.options.debug) {console.log('senkouCrossScore:' + s.period.senkouCrossScore)}
-    if (s.options.debug) {console.log('chikouCrossScore:' + s.period.chikouCrossScore)}
-    if (s.options.debug) {console.log('pricePlacementScore:' + s.period.pricePlacementScore)}
-    if (s.options.debug) {console.log('chikouPlacementScore:' + s.period.chikouPlacementScore)}
+    if (s.options.debug) {
+      console.log('buyLevel: ' + s.options.buyLevel)
+    }
+    if (s.options.debug) {
+      console.log('sellLevel: ' + s.options.sellLevel)
+    }
 
 
-    if (s.options.debug) {console.log('\n== Buy / Sell signals ==')}
+    if (s.options.debug) {
+      console.log('\n== Ichimoku Data ==')
+    }
 
-    if (s.options.debug) {console.log('normalizedScore:' + s.normalizedScore)}
-    if (s.options.debug) {console.log('previousScore:' + s.previousScore)}
-    if (s.options.debug) {console.log('buy logic')}
-    if (s.options.debug) {console.log('if (s.normalizedScore > s.options.buyLevel && s.previousScore < s.options.buyLevel)')}
-    if (s.options.debug) {console.log('if (' + s.normalizedScore + ' > ' + s.options.buyLevel + ' && ' + s.previousScore + ' < ' + s.options.buyLevel + ')')}
-    if (s.options.debug) {console.log(s.normalizedScore > s.options.buyLevel && s.previousScore < s.options.buyLevel)}
+    if (s.options.debug) {
+      console.log('Tenken-Sen (conversion Line):' + s.period.tenkenSen)
+    }
+    if (s.options.debug) {
+      console.log('Kijun-Sen (Base Line):' + s.period.kijunSen)
+    }
+    if (s.options.debug) {
+      console.log('senkouA (Leading):' + s.period.senkouA)
+    }
+    if (s.options.debug) {
+      console.log('senkouB (Leading):' + s.period.senkouB)
+    }
 
+
+    if (s.options.debug) {
+      console.log('\n== Calculate Score ==')
+    }
+
+    if (s.options.debug) {
+      console.log('tkCrossScore:' + s.period.tkCrossScore)
+    }
+    if (s.options.debug) {
+      console.log('pkCrossScore:' + s.period.pkCrossScore)
+    }
+    if (s.options.debug) {
+      console.log('kumoBreakoutScore:' + s.period.kumoBreakoutScore)
+    }
+    if (s.options.debug) {
+      console.log('senkouCrossScore:' + s.period.senkouCrossScore)
+    }
+    if (s.options.debug) {
+      console.log('chikouCrossScore:' + s.period.chikouCrossScore)
+    }
+    if (s.options.debug) {
+      console.log('pricePlacementScore:' + s.period.pricePlacementScore)
+    }
+    if (s.options.debug) {
+      console.log('chikouPlacementScore:' + s.period.chikouPlacementScore)
+    }
+
+
+    if (s.options.debug) {
+      console.log('\n== Buy / Sell signals ==')
+    }
+
+    if (s.options.debug) {
+      console.log('normalizedScore:' + s.normalizedScore)
+    }
+    if (s.options.debug) {
+      console.log('previousScore:' + s.previousScore)
+    }
+    if (s.options.debug) {
+      console.log('buy logic')
+    }
+    if (s.options.debug) {
+      console.log('if (s.normalizedScore > s.options.buyLevel && s.previousScore < s.options.buyLevel)')
+    }
+    if (s.options.debug) {
+      console.log('if (' + s.normalizedScore + ' > ' + s.options.buyLevel + ' && ' + s.previousScore + ' < ' + s.options.buyLevel + ')')
+    }
+    if (s.options.debug) {
+      console.log(s.normalizedScore > s.options.buyLevel && s.previousScore < s.options.buyLevel)
+    }
 
 
     // == == Buy / Sell Signals == ==
 
 
-
-    if (!s.previousScore) {s.previousScore = 0}
+    if (!s.previousScore) {
+      s.previousScore = 0
+    }
 
     if (s.normalizedScore > s.options.buyLevel && s.previousScore < s.options.buyLevel) {
       s.signal = 'buy'
@@ -184,10 +236,14 @@ module.exports = {
   },
 
   onReport: function (s) {
-    var cols = []
+    const cols = []
     let color = 'cyan'
 
-    if (s.normalizedScore > 50) { color = 'green' } else if (s.normalizedScore < -50) { color = 'red' }
+    if (s.normalizedScore > 50) {
+      color = 'green'
+    } else if (s.normalizedScore < -50) {
+      color = 'red'
+    }
     cols.push(z(10, 'S[' + n(s.normalizedScore).format('###.0') + ']', '')[color])
 
     return cols
@@ -204,7 +260,7 @@ module.exports = {
     sell_stop_pct: Phenotypes.Range0(1, 50),
     buy_stop_pct: Phenotypes.Range0(1, 50),
     profit_stop_enable_pct: Phenotypes.Range(1, 20),
-    profit_stop_pct: Phenotypes.Range(1,10),
+    profit_stop_pct: Phenotypes.Range(1, 10),
 
     //Strategy Specific
     buyLevel: Phenotypes.RangeFactor(5, 100, 5),
@@ -219,15 +275,12 @@ module.exports = {
 }
 
 
-
-
-
-
 // == == Helpers == ==
 
 
-
-function resolve(src, fallback) { return isNaN(src) ? fallback : src}
+function resolve(src, fallback) {
+  return isNaN(src) ? fallback : src
+}
 
 
 function donchian(s, len) {
@@ -245,13 +298,14 @@ function getIntersect(s, key1, key2) {
 
   return (s.lookback[0][key1] * (s.period[key2] - s.lookback[0][key2]) -
     s.lookback[0][key2] * (s.period[key1] - s.lookback[0][key1])) /
-      ((s.period[key2] - s.lookback[0][key2]) - (s.period[key1] - s.lookback[0][key1]))
+    ((s.period[key2] - s.lookback[0][key2]) - (s.period[key1] - s.lookback[0][key1]))
 }
 
 function belowKumo(s, key, key1, key2) {
 
   return valueBelowKumo(s, s.period[key], key1, key2)
 }
+
 function aboveKumo(s, key, key1, key2) {
 
   return valueAboveKumo(s, s.period[key], key1, key2)
@@ -259,7 +313,7 @@ function aboveKumo(s, key, key1, key2) {
 
 function valueBelowKumo(s, val, key1, key2) {
 
-  if(s.lookback.length >= s.options.displacement)
+  if (s.lookback.length >= s.options.displacement)
     return valueBelow(val, s.lookback[s.options.displacement][key1], s.lookback[s.options.displacement][key2])
   else
     throw 'belowKumo, s.lookback.length < s.options.displacement'
@@ -267,7 +321,7 @@ function valueBelowKumo(s, val, key1, key2) {
 
 function valueAboveKumo(s, val, key1, key2) {
 
-  if(s.lookback.length >= s.options.displacement)
+  if (s.lookback.length >= s.options.displacement)
     return valueAbove(val, s.lookback[s.options.displacement][key1], s.lookback[s.options.displacement][key2])
   else
     throw 'aboveKumo, s.lookback.length < s.options.displacement'
@@ -282,11 +336,7 @@ function valueBelow(val, target1, target2) {
 }
 
 
-
 // == == ichimoku cloud signals == ==
-
-
-
 
 
 // == Tenkan Sen (turning line) / Kijun Sen (standard line) Cross ==
@@ -300,13 +350,25 @@ function calcTkCross(s, previousVal) {
   let below = valueBelowKumo(s, intersect, 'senkouA', 'senkouB')
   let inside = !above && !below
 
-  let score =  resolve(previousVal, 0)
-  if (bullish && below) {score = s.options.weakPoints}      //A weak bullish signal occurs when the cross is below the Kumo.
-  if (bullish && inside) {score = s.options.neutralPoints}  //A neutral bullish signal occurs when the cross is inside the Kumo.
-  if (bullish && above) {score = s.options.strongPoints}    //A strong bullish signal occurs when the cross is above the Kumo.
-  if (bearish && below) {score = -s.options.strongPoints}   //A strong bearish signal occurs when the cross is below the Kumo.
-  if (bearish && inside) {score = -s.options.neutralPoints} //A neutral bearish signal occurs when the cross is inside the Kumo.
-  if (bearish && above) {score = -s.options.weakPoints}     //A weak bearish signal occurs when the cross is above the Kumo.
+  let score = resolve(previousVal, 0)
+  if (bullish && below) {
+    score = s.options.weakPoints
+  }      //A weak bullish signal occurs when the cross is below the Kumo.
+  if (bullish && inside) {
+    score = s.options.neutralPoints
+  }  //A neutral bullish signal occurs when the cross is inside the Kumo.
+  if (bullish && above) {
+    score = s.options.strongPoints
+  }    //A strong bullish signal occurs when the cross is above the Kumo.
+  if (bearish && below) {
+    score = -s.options.strongPoints
+  }   //A strong bearish signal occurs when the cross is below the Kumo.
+  if (bearish && inside) {
+    score = -s.options.neutralPoints
+  } //A neutral bearish signal occurs when the cross is inside the Kumo.
+  if (bearish && above) {
+    score = -s.options.weakPoints
+  }     //A weak bearish signal occurs when the cross is above the Kumo.
 
   return (score)
 
@@ -323,13 +385,25 @@ function calcPkCross(s, previousVal) {
   let below = valueBelowKumo(s, intersect, 'senkouA', 'senkouB')
   let inside = !above && !below
 
-  let score =  resolve(previousVal, 0)
-  if (bullish && below) {score = s.options.weakPoints}      //A weak bullish signal occurs when the cross is below the Kumo.
-  if (bullish && inside) {score = s.options.neutralPoints}  //A neutral bullish signal occurs when the cross is inside the Kumo.
-  if (bullish && above) {score = s.options.strongPoints}    //A strong bullish signal occurs when the cross is above the Kumo.
-  if (bearish && below) {score = -s.options.strongPoints}   //A strong bearish signal occurs when the cross is below the Kumo.
-  if (bearish && inside) {score = -s.options.neutralPoints} //A neutral bearish signal occurs when the cross is inside the Kumo.
-  if (bearish && above) {score = -s.options.weakPoints}     //A weak bearish signal occurs when the cross is above the Kumo.
+  let score = resolve(previousVal, 0)
+  if (bullish && below) {
+    score = s.options.weakPoints
+  }      //A weak bullish signal occurs when the cross is below the Kumo.
+  if (bullish && inside) {
+    score = s.options.neutralPoints
+  }  //A neutral bullish signal occurs when the cross is inside the Kumo.
+  if (bullish && above) {
+    score = s.options.strongPoints
+  }    //A strong bullish signal occurs when the cross is above the Kumo.
+  if (bearish && below) {
+    score = -s.options.strongPoints
+  }   //A strong bearish signal occurs when the cross is below the Kumo.
+  if (bearish && inside) {
+    score = -s.options.neutralPoints
+  } //A neutral bearish signal occurs when the cross is inside the Kumo.
+  if (bearish && above) {
+    score = -s.options.weakPoints
+  }     //A weak bearish signal occurs when the cross is above the Kumo.
 
   return (score)
 
@@ -341,9 +415,13 @@ function calcKumoBreakout(s, previousVal) {
   let bullish = (crossover(s, 'close', 'senkouA') && s.period.senkouA >= s.period.senkouB) || (crossover(s, 'close', 'senkouB') && s.senkouB >= s.senkouA)
   let bearish = (crossunder(s, 'close', 'senkouB') && s.period.senkouA >= s.period.senkouB) || (crossover(s, 'close', 'senkouA') && s.senkouB >= s.senkouA)
 
-  let score =  resolve(previousVal, 0)
-  if (bullish) {score = s.options.strongPoints}  //A bullish signal occurs when the price goes upwards through the top of the Kumo.
-  if (bearish) {score = -s.options.strongPoints} //A bearish signal occurs when the price goes downwards through the bottom of the Kumo.
+  let score = resolve(previousVal, 0)
+  if (bullish) {
+    score = s.options.strongPoints
+  }  //A bullish signal occurs when the price goes upwards through the top of the Kumo.
+  if (bearish) {
+    score = -s.options.strongPoints
+  } //A bearish signal occurs when the price goes downwards through the bottom of the Kumo.
 
   return (score)
 
@@ -360,13 +438,25 @@ function calcSenkouCross(s, previousVal) {
   let bullish = crossover(s, 'noDpsenkouA', 'noDpsenkouB')
   let bearish = crossunder(s, 'noDpsenkouA', 'noDpsenkouB')
 
-  let score =  resolve(previousVal, 0)
-  if (bullish && s.priceBelowKumo) {score = s.options.weakPoints}      //A weak bullish signal occurs if the current price is below the Kumo.
-  if (bullish && s.priceInsideKumo) {score = s.options.neutralPoints}  //A neutral bullish signal occurs if the current price is inside the Kumo.
-  if (bullish && s.priceAboveKumo) {score = s.options.strongPoints}    //A strong bullish signal occurs if the current price is above the Kumo.
-  if (bearish && s.priceBelowKumo) {score = -s.options.strongPoints}   //A strong bearish signal occurs if the current price is below the Kumo.
-  if (bearish && s.priceInsideKumo) {score = -s.options.neutralPoints} //A neutral bearish signal occurs if the current price is inside the Kumo.
-  if (bearish && s.priceAboveKumo) {score = -s.options.weakPoints}     //A weak bearish signal occurs if the current price is above the Kumo.
+  let score = resolve(previousVal, 0)
+  if (bullish && s.priceBelowKumo) {
+    score = s.options.weakPoints
+  }      //A weak bullish signal occurs if the current price is below the Kumo.
+  if (bullish && s.priceInsideKumo) {
+    score = s.options.neutralPoints
+  }  //A neutral bullish signal occurs if the current price is inside the Kumo.
+  if (bullish && s.priceAboveKumo) {
+    score = s.options.strongPoints
+  }    //A strong bullish signal occurs if the current price is above the Kumo.
+  if (bearish && s.priceBelowKumo) {
+    score = -s.options.strongPoints
+  }   //A strong bearish signal occurs if the current price is below the Kumo.
+  if (bearish && s.priceInsideKumo) {
+    score = -s.options.neutralPoints
+  } //A neutral bearish signal occurs if the current price is inside the Kumo.
+  if (bearish && s.priceAboveKumo) {
+    score = -s.options.weakPoints
+  }     //A weak bearish signal occurs if the current price is above the Kumo.
 
   return (score)
 
@@ -380,13 +470,25 @@ function calcChikouCross(s, previousVal) {
   let bullish = crossover(s, 'close', 'leadline')
   let bearish = crossunder(s, 'close', 'leadline')
 
-  let score =  resolve(previousVal, 0)
-  if (bullish && s.priceBelowKumo) {score = s.options.weakPoints}      //A weak bullish signal occurs if the current price is below the Kumo.
-  if (bullish && s.priceInsideKumo) {score = s.options.neutralPoints}  //A neutral bullish signal occurs if the current price is inside the Kumo.
-  if (bullish && s.priceAboveKumo) {score = s.options.strongPoints}    //A strong bullish signal occurs if the current price is above the Kumo.
-  if (bearish && s.priceBelowKumo) {score = -s.options.strongPoints}   //A weak bearish signal occurs if the current price is above the Kumo.
-  if (bearish && s.priceInsideKumo) {score = -s.options.neutralPoints} //A neutral bearish signal occurs if the current price is inside the Kumo.
-  if (bearish && s.priceAboveKumo) {score = -s.options.weakPoints}     //A strong bearish signal occurs if the current price is below the Kumo.
+  let score = resolve(previousVal, 0)
+  if (bullish && s.priceBelowKumo) {
+    score = s.options.weakPoints
+  }      //A weak bullish signal occurs if the current price is below the Kumo.
+  if (bullish && s.priceInsideKumo) {
+    score = s.options.neutralPoints
+  }  //A neutral bullish signal occurs if the current price is inside the Kumo.
+  if (bullish && s.priceAboveKumo) {
+    score = s.options.strongPoints
+  }    //A strong bullish signal occurs if the current price is above the Kumo.
+  if (bearish && s.priceBelowKumo) {
+    score = -s.options.strongPoints
+  }   //A weak bearish signal occurs if the current price is above the Kumo.
+  if (bearish && s.priceInsideKumo) {
+    score = -s.options.neutralPoints
+  } //A neutral bearish signal occurs if the current price is inside the Kumo.
+  if (bearish && s.priceAboveKumo) {
+    score = -s.options.weakPoints
+  }     //A strong bearish signal occurs if the current price is below the Kumo.
 
   return (score)
 
@@ -396,27 +498,32 @@ function calcChikouCross(s, previousVal) {
 // == price relative to cloud ==
 function calcPricePlacement(s, previousVal) {
 
-  let score =  resolve(previousVal, 0)
-  if (s.priceAboveKumo) {score = s.options.strongPoints}
-  if (s.priceInsideKumo) {score = s.options.neutralPoints}
-  if (s.priceBelowKumo) {score = -s.options.strongPoints}
+  let score = resolve(previousVal, 0)
+  if (s.priceAboveKumo) {
+    score = s.options.strongPoints
+  }
+  if (s.priceInsideKumo) {
+    score = s.options.neutralPoints
+  }
+  if (s.priceBelowKumo) {
+    score = -s.options.strongPoints
+  }
 
   return (score)
 
 }
 
 
-
 // == lag line releative to cloud ==
 function calcChikouPlacement(s, previousVal) {
 
-  let score =  resolve(previousVal, 0)
-  if(s.lookback.length >= s.options.displacement) {
+  let score = resolve(previousVal, 0)
+  if (s.lookback.length >= s.options.displacement) {
     // above
-    if(aboveKumo(s, 'close', 'senkouA', 'senkouB'))
+    if (aboveKumo(s, 'close', 'senkouA', 'senkouB'))
       score = s.options.strongPoints
     // below
-    else if(belowKumo(s, 'close', 'senkouA', 'senkouB'))
+    else if (belowKumo(s, 'close', 'senkouA', 'senkouB'))
       score = -s.options.strongPoints
     else
       score = 0

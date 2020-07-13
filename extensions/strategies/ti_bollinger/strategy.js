@@ -1,7 +1,7 @@
-var z = require('zero-fill')
-  , n = require('numbro')
-  , tulip_bollinger = require('../../../lib/ti_bollinger')
-  , Phenotypes = require('../../../lib/phenotype')
+const z = require('zero-fill')
+const n = require('numbro')
+const tulip_bollinger = require('../../../lib/ti_bollinger')
+const Phenotypes = require('../../../lib/phenotype')
 
 module.exports = {
   name: 'ti_bollinger',
@@ -15,61 +15,58 @@ module.exports = {
     this.option('bollinger_upper_bound_pct', 'pct the current price should be near the bollinger upper bound before we sell', Number, 0)
     this.option('bollinger_lower_bound_pct', 'pct the current price should be near the bollinger lower bound before we buy', Number, 0)
   },
- 
-  calculate:  function (s) {
-    if (s.in_preroll) return 
+
+  calculate: function (s) {
+    if (s.in_preroll) return
   },
 
   onPeriod: function (s, cb) {
-    
-    tulip_bollinger(s,'tulip_bollinger', s.options.bollinger_size, s.options.bollinger_time).
-      then(function(result)
-      {
-        if (!result) cb()
-        let bollinger = {
-          LowerBand: result.LowerBand[result.LowerBand.length-1],
-          MiddleBand: result.MiddleBand[result.MiddleBand.length-1],
-          UpperBand: result.UpperBand[result.UpperBand.length-1]
-        }
-        s.period.report = bollinger
-        if (bollinger.UpperBand) {
-          let upperBound =   (bollinger.UpperBand / 100) * (100 - s.options.bollinger_upper_bound_pct)
-          let lowerBound = (bollinger.LowerBand / 100) * (100 + s.options.bollinger_lower_bound_pct)
-          s.signal = null // hold
-          if (s.period.close < lowerBound ) {
-            s.signal = 'buy'
-          } 
-          if (s.period.close > upperBound ) {
-            s.signal = 'sell'
-          } 
 
-
-        }
-        cb()
-      }).catch(function(){
+    tulip_bollinger(s, 'tulip_bollinger', s.options.bollinger_size, s.options.bollinger_time).then(function (result) {
+      if (!result) cb()
+      let bollinger = {
+        LowerBand: result.LowerBand[result.LowerBand.length - 1],
+        MiddleBand: result.MiddleBand[result.MiddleBand.length - 1],
+        UpperBand: result.UpperBand[result.UpperBand.length - 1]
+      }
+      s.period.report = bollinger
+      if (bollinger.UpperBand) {
+        let upperBound = (bollinger.UpperBand / 100) * (100 - s.options.bollinger_upper_bound_pct)
+        let lowerBound = (bollinger.LowerBand / 100) * (100 + s.options.bollinger_lower_bound_pct)
         s.signal = null // hold
-        cb()
-      })
+        if (s.period.close < lowerBound) {
+          s.signal = 'buy'
+        }
+        if (s.period.close > upperBound) {
+          s.signal = 'sell'
+        }
+
+
+      }
+      cb()
+    }).catch(function () {
+      s.signal = null // hold
+      cb()
+    })
   },
 
   onReport: function (s) {
-    var cols = []
+    const cols = []
     if (s.period.report) {
       if (s.period.report.UpperBand && s.period.report.LowerBand) {
         let upperBound = s.period.report.UpperBand
         let lowerBound = s.period.report.LowerBand
-        var color = 'grey'
+        let color = 'grey'
         if (s.period.close > (upperBound / 100) * (100 - s.options.bollinger_upper_bound_pct)) {
           color = 'green'
         } else if (s.period.close < (lowerBound / 100) * (100 + s.options.bollinger_lower_bound_pct)) {
           color = 'red'
         }
         cols.push(z(8, n(s.period.close).format('+00.0000'), ' ')[color])
-        cols.push(z(8, n(lowerBound).format('0.000000').substring(0,7), ' ').cyan)
-        cols.push(z(8, n(upperBound).format('0.000000').substring(0,7), ' ').cyan)
+        cols.push(z(8, n(lowerBound).format('0.000000').substring(0, 7), ' ').cyan)
+        cols.push(z(8, n(upperBound).format('0.000000').substring(0, 7), ' ').cyan)
       }
-    }
-    else {
+    } else {
       cols.push('         ')
     }
     return cols
@@ -81,10 +78,10 @@ module.exports = {
     markdown_buy_pct: Phenotypes.RangeFactor(-1.0, 5.0, 0.1),
     markup_sell_pct: Phenotypes.RangeFactor(-1.0, 5.0, 0.1),
     order_type: Phenotypes.ListOption(['maker', 'taker']),
-    sell_stop_pct: Phenotypes.RangeFactor(0.0, 50.0,0.01),
-    buy_stop_pct: Phenotypes.RangeFactor(0.0, 50.0,0.01),
-    profit_stop_enable_pct: Phenotypes.RangeFactor(0.0, 5.0,0.1),
-    profit_stop_pct: Phenotypes.RangeFactor(0.0, 20.0,0.1),
+    sell_stop_pct: Phenotypes.RangeFactor(0.0, 50.0, 0.01),
+    buy_stop_pct: Phenotypes.RangeFactor(0.0, 50.0, 0.01),
+    profit_stop_enable_pct: Phenotypes.RangeFactor(0.0, 5.0, 0.1),
+    profit_stop_pct: Phenotypes.RangeFactor(0.0, 20.0, 0.1),
     rsi_periods: Phenotypes.Range(6, 16),
 
     // -- strategy

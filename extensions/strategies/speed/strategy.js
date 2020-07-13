@@ -1,7 +1,7 @@
-var z = require('zero-fill')
-  , n = require('numbro')
-  , ema = require('../../../lib/ema')
-  , Phenotypes = require('../../../lib/phenotype')
+const z = require('zero-fill')
+const n = require('numbro')
+const ema = require('../../../lib/ema')
+const Phenotypes = require('../../../lib/phenotype')
 
 module.exports = {
   name: 'speed',
@@ -33,8 +33,7 @@ module.exports = {
         }
         s.trend = 'up'
         s.signal = !s.acted_on_trend ? 'buy' : null
-      }
-      else if (s.period.speed <= s.period.baseline * s.options.trigger_factor * -1) {
+      } else if (s.period.speed <= s.period.baseline * s.options.trigger_factor * -1) {
         if (s.trend !== 'down') {
           s.acted_on_trend = false
         }
@@ -46,7 +45,7 @@ module.exports = {
   },
 
   onReport: function (s) {
-    var cols = []
+    const cols = []
     cols.push(z(8, n(s.period.speed).format('0.0000'), ' ')[s.period.speed >= 0 ? 'green' : 'red'])
     if (typeof s.period.baseline === 'number') {
       cols.push(z(8, n(s.period.baseline).format('0.0000'), ' ').grey)
@@ -64,7 +63,7 @@ module.exports = {
     sell_stop_pct: Phenotypes.Range0(1, 50),
     buy_stop_pct: Phenotypes.Range0(1, 50),
     profit_stop_enable_pct: Phenotypes.Range0(1, 20),
-    profit_stop_pct: Phenotypes.Range(1,20),
+    profit_stop_pct: Phenotypes.Range(1, 20),
 
     // -- strategy
     baseline_periods: Phenotypes.Range(1, 5000),

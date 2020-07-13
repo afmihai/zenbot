@@ -1,9 +1,9 @@
-var z = require('zero-fill')
-  , n = require('numbro')
-  , ta_ema = require('../../../lib/ta_ema')
-  , rsi = require('../../../lib/rsi')
-  , stddev = require('../../../lib/stddev')
-  , Phenotypes = require('../../../lib/phenotype')
+const z = require('zero-fill')
+const n = require('numbro')
+const ta_ema = require('../../../lib/ta_ema')
+const rsi = require('../../../lib/rsi')
+const stddev = require('../../../lib/stddev')
+const Phenotypes = require('../../../lib/phenotype')
 
 module.exports = {
   name: 'ta_ema',
@@ -31,8 +31,7 @@ module.exports = {
     }
     if (s.options.neutral_rate === 'auto') {
       stddev(s, 'trend_ema_stddev', Math.floor(s.options.trend_ema / 2), 'trend_ema_rate')
-    }
-    else {
+    } else {
       s.period.trend_ema_stddev = s.options.neutral_rate
     }
   },
@@ -51,7 +50,7 @@ module.exports = {
     // wait for promise to be resolved
     // we add all maybe we need more indicators
     Promise.all([ta_ema(s, s.options.trend_ema)]).then(result => {
-      if(result && result.outReal) {
+      if (result && result.outReal) {
         s.period.trend_ema = result.outReal
       }
     })
@@ -69,8 +68,7 @@ module.exports = {
         s.trend = 'up'
         s.signal = !s.acted_on_trend ? 'buy' : null
         s.cancel_down = false
-      }
-      else if (!s.cancel_down && s.period.trend_ema_rate < (s.period.trend_ema_stddev * -1)) {
+      } else if (!s.cancel_down && s.period.trend_ema_rate < (s.period.trend_ema_stddev * -1)) {
         if (s.trend !== 'down') {
           s.acted_on_trend = false
         }
@@ -82,25 +80,22 @@ module.exports = {
   },
 
   onReport: function (s) {
-    var cols = []
+    const cols = []
     if (typeof s.period.trend_ema_stddev === 'number') {
-      var color = 'grey'
+      let color = 'grey'
       if (s.period.trend_ema_rate > s.period.trend_ema_stddev) {
         color = 'green'
-      }
-      else if (s.period.trend_ema_rate < (s.period.trend_ema_stddev * -1)) {
+      } else if (s.period.trend_ema_rate < (s.period.trend_ema_stddev * -1)) {
         color = 'red'
       }
       cols.push(z(8, n(s.period.trend_ema_rate).format('0.0000'), ' ')[color])
       if (s.period.trend_ema_stddev) {
         cols.push(z(8, n(s.period.trend_ema_stddev).format('0.0000'), ' ').grey)
       }
-    }
-    else {
+    } else {
       if (s.period.trend_ema_stddev) {
         cols.push('                  ')
-      }
-      else {
+      } else {
         cols.push('         ')
       }
     }
@@ -117,7 +112,7 @@ module.exports = {
     sell_stop_pct: Phenotypes.Range0(1, 50),
     buy_stop_pct: Phenotypes.Range0(1, 50),
     profit_stop_enable_pct: Phenotypes.Range0(1, 20),
-    profit_stop_pct: Phenotypes.Range(1,20),
+    profit_stop_pct: Phenotypes.Range(1, 20),
 
     // -- strategy
     trend_ema: Phenotypes.Range(1, 40),

@@ -1,6 +1,6 @@
-var z = require('zero-fill')
-  , n = require('numbro')
-  , Phenotypes = require('../../../lib/phenotype')
+const z = require('zero-fill')
+const n = require('numbro')
+const Phenotypes = require('../../../lib/phenotype')
 
 module.exports = {
   name: 'trust_distrust',
@@ -57,7 +57,7 @@ module.exports = {
 
     // sell logic
     if (s.trust_distrust_last_action !== 'sell') {
-      if ( s.period.high > (s.trust_distrust_start + (s.trust_distrust_start / 100 * s.options.sell_min))) { // we are above minimum we want to sell for, or going so low we should "panic sell"
+      if (s.period.high > (s.trust_distrust_start + (s.trust_distrust_start / 100 * s.options.sell_min))) { // we are above minimum we want to sell for, or going so low we should "panic sell"
         if (s.period.high < (s.trust_distrust_highest - (s.trust_distrust_highest / 100 * s.options.sell_threshold))) { // we lost sell_threshold from highest point
           s.signal = 'sell'
 
@@ -96,7 +96,7 @@ module.exports = {
 
     // buy logic
     if (s.trust_distrust_last_action !== 'buy') {
-      if(s.period.high < s.trust_distrust_start && s.period.high > (s.trust_distrust_lowest + (s.trust_distrust_lowest / 100 * s.options.buy_threshold))) { // we grew above buy threshold from lowest point
+      if (s.period.high < s.trust_distrust_start && s.period.high > (s.trust_distrust_lowest + (s.trust_distrust_lowest / 100 * s.options.buy_threshold))) { // we grew above buy threshold from lowest point
         if (s.options.buy_threshold_max > 0 && s.trust_distrust_buy_threshold_max < s.options.buy_threshold_max) {
           s.trust_distrust_buy_threshold_max++
           return cb()
@@ -121,12 +121,11 @@ module.exports = {
   },
 
   onReport: function (s) {
-    var cols = []
-    var color = 'grey'
+    const cols = []
+    let color = 'grey'
     if (s.period.high > s.trust_distrust_start) {
       color = 'green'
-    }
-    else if (s.period.high < s.trust_distrust_lowest) {
+    } else if (s.period.high < s.trust_distrust_lowest) {
       color = 'red'
     }
     cols.push(z(8, n(s.period.high).format('0.0000'), ' ')[color])
@@ -144,7 +143,7 @@ module.exports = {
     sell_stop_pct: Phenotypes.Range0(1, 50),
     buy_stop_pct: Phenotypes.Range0(1, 50),
     profit_stop_enable_pct: Phenotypes.Range0(1, 20),
-    profit_stop_pct: Phenotypes.Range(1,20),
+    profit_stop_pct: Phenotypes.Range(1, 20),
 
     // -- strategy
     sell_threshold: Phenotypes.Range(1, 100),

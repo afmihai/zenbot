@@ -1,8 +1,8 @@
-var z = require('zero-fill')
-  , n = require('numbro')
-  , rsi = require('../../../lib/rsi')
-  , ta_ppo = require('../../../lib/ta_ppo')
-  , Phenotypes = require('../../../lib/phenotype')
+const z = require('zero-fill')
+const n = require('numbro')
+const rsi = require('../../../lib/rsi')
+const ta_ppo = require('../../../lib/ta_ppo')
+const Phenotypes = require('../../../lib/phenotype')
 
 module.exports = {
   name: 'ta_ppo',
@@ -43,21 +43,21 @@ module.exports = {
       }
     }
 
-    ta_ppo(s, s.options.ema_long_period, s.options.ema_short_period, s.options.signal_period, s.options.ma_type).then(function(ppoSignal) {
+    ta_ppo(s, s.options.ema_long_period, s.options.ema_short_period, s.options.signal_period, s.options.ma_type).then(function (ppoSignal) {
       s.period['ppo'] = ppoSignal
 
       if (s.period.ppo && s.lookback[0] && s.lookback[0].ppo) {
         s.period.trend_ppo = s.period.ppo >= 0 ? 'up' : 'down'
       }
 
-      if (s.period.trend_ppo == 'up') {
+      if (s.period.trend_ppo === 'up') {
         if (s.trend !== 'up') {
           s.acted_on_trend = false
         }
 
         s.trend = 'up'
         s.signal = !s.acted_on_trend ? 'buy' : null
-      } else if (s.period.trend_ppo == 'down') {
+      } else if (s.period.trend_ppo === 'down') {
         if (s.trend !== 'down') {
           s.acted_on_trend = false
         }
@@ -67,7 +67,7 @@ module.exports = {
       }
 
       cb()
-    }).catch(function(error) {
+    }).catch(function (error) {
       console.log(error)
       cb()
     })
@@ -94,7 +94,7 @@ module.exports = {
     sell_stop_pct: Phenotypes.Range0(1, 50),
     buy_stop_pct: Phenotypes.Range0(1, 50),
     profit_stop_enable_pct: Phenotypes.Range0(1, 20),
-    profit_stop_pct: Phenotypes.Range(1,20),
+    profit_stop_pct: Phenotypes.Range(1, 20),
 
     // have to be minimum 2 because talib will throw an "TA_BAD_PARAM" error
     ema_short_period: Phenotypes.Range(2, 20),

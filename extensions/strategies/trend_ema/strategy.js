@@ -1,9 +1,9 @@
-var z = require('zero-fill')
-  , n = require('numbro')
-  , ema = require('../../../lib/ema')
-  , rsi = require('../../../lib/rsi')
-  , stddev = require('../../../lib/stddev')
-  , Phenotypes = require('../../../lib/phenotype')
+const z = require('zero-fill')
+const n = require('numbro')
+const ema = require('../../../lib/ema')
+const rsi = require('../../../lib/rsi')
+const stddev = require('../../../lib/stddev')
+const Phenotypes = require('../../../lib/phenotype')
 
 module.exports = {
   name: 'trend_ema',
@@ -71,9 +71,9 @@ module.exports = {
   },
 
   onReport: function(s) {
-    var cols = []
+    const cols = []
     if (typeof s.period.trend_ema_stddev === 'number') {
-      var color = 'grey'
+      let color = 'grey'
       if (s.period.trend_ema_rate > s.period.trend_ema_stddev) {
         color = 'green'
       } else if (s.period.trend_ema_rate < s.period.trend_ema_stddev * -1) {

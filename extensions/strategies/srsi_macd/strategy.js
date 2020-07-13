@@ -1,8 +1,8 @@
-let z = require('zero-fill')
-  , n = require('numbro')
-  , srsi = require('../../../lib/srsi')
-  , ema = require('../../../lib/ema')
-  , Phenotypes = require('../../../lib/phenotype')
+const z = require('zero-fill')
+const n = require('numbro')
+const srsi = require('../../../lib/srsi')
+const ema = require('../../../lib/ema')
+const Phenotypes = require('../../../lib/phenotype')
 
 module.exports = {
   name: 'srsi_macd',
@@ -44,7 +44,7 @@ module.exports = {
   onPeriod: function (s, cb) {
     if (!s.in_preroll)
       if (typeof s.period.macd_histogram === 'number' && typeof s.lookback[0].macd_histogram === 'number' && typeof s.period.srsi_K === 'number' && typeof s.period.srsi_D === 'number')
-      // Buy signal
+        // Buy signal
         if (s.period.macd_histogram >= s.options.up_trend_threshold)
           if (s.period.srsi_K > s.period.srsi_D && s.period.srsi_K > s.lookback[0].srsi_K && s.period.srsi_K < s.options.oversold_rsi)
             s.signal = 'buy'
@@ -59,20 +59,18 @@ module.exports = {
     cb()
   },
   onReport: function (s) {
-    var cols = []
+    const cols = []
     if (typeof s.period.macd_histogram === 'number') {
-      var color = 'grey'
+      let color = 'grey'
       if (s.period.macd_histogram > 0) {
         color = 'green'
-      }
-      else if (s.period.macd_histogram < 0) {
+      } else if (s.period.macd_histogram < 0) {
         color = 'red'
       }
       cols.push(z(8, n(s.period.macd_histogram).format('+00.0000'), ' ')[color])
       cols.push(z(8, n(s.period.srsi_K).format('00.00'), ' ').cyan)
       cols.push(z(8, n(s.period.srsi_D).format('00.00'), ' ').yellow)
-    }
-    else {
+    } else {
       cols.push('         ')
     }
     return cols
@@ -88,7 +86,7 @@ module.exports = {
     sell_stop_pct: Phenotypes.Range0(1, 50),
     buy_stop_pct: Phenotypes.Range0(1, 50),
     profit_stop_enable_pct: Phenotypes.Range0(1, 20),
-    profit_stop_pct: Phenotypes.Range(1,20),
+    profit_stop_pct: Phenotypes.Range(1, 20),
 
     // -- strategy
     rsi_periods: Phenotypes.Range(1, 200),

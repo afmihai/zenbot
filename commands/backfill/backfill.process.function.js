@@ -2,21 +2,21 @@
 /*
 	Processes the trades..
 */
-var collectionService = require('../../lib/services/collection-service')
+const collectionService = require('../../lib/services/collection-service')
 
 module.exports = function (conf) {
 
-  var collectionServiceInstance = collectionService(conf)
+  const collectionServiceInstance = collectionService(conf)
 
   return (targetTimeInMillis, queue, getIDofNextTradeToProcessFunc, cb) => {
-    var trades = queue.dequeue()
+    const trades = queue.dequeue()
 
-    var prev
-    var curr
-    var rtnTrade
-    var index = 0
-    var moreInThisBatch = true
-    var stopProcessingConditionReached = false
+    let prev
+    let curr
+    let rtnTrade
+    let index = 0
+    let moreInThisBatch = true
+    let stopProcessingConditionReached = false
 
     do {
       prev = curr

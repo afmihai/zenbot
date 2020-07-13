@@ -24,7 +24,7 @@ module.exports = function api () {
   // set up rate limiter: maximum of fifty requests per minute
   let RateLimit = require('express-rate-limit')
   let limiter = new RateLimit({
-    windowMs: 1*60*1000, // 1 minute
+    windowMs: 1* 60 *1000, // 1 minute
     max: 50
   })
 

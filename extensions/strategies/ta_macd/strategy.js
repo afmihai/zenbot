@@ -1,8 +1,8 @@
-var z = require('zero-fill')
-  , n = require('numbro')
-  , rsi = require('../../../lib/rsi')
-  , ta_macd = require('../../../lib/ta_macd')
-  , Phenotypes = require('../../../lib/phenotype')
+const z = require('zero-fill')
+const n = require('numbro')
+const rsi = require('../../../lib/rsi')
+const ta_macd = require('../../../lib/ta_macd')
+const Phenotypes = require('../../../lib/phenotype')
 
 module.exports = {
   name: 'ta_macd',
@@ -43,8 +43,8 @@ module.exports = {
       }
     }
 
-    ta_macd(s, s.options.ema_long_period, s.options.ema_short_period, s.options.signal_period).then(function(signal) {
-      if(!signal) {
+    ta_macd(s, s.options.ema_long_period, s.options.ema_short_period, s.options.signal_period).then(function (signal) {
+      if (!signal) {
         cb()
         return
       }
@@ -64,7 +64,7 @@ module.exports = {
       }
 
       cb()
-    }).catch(function(error) {
+    }).catch(function (error) {
       console.log(error)
       cb()
     })
@@ -72,19 +72,17 @@ module.exports = {
   },
 
   onReport: function (s) {
-    var cols = []
+    const cols = []
     if (typeof s.period.macd_histogram === 'number') {
-      var color = 'grey'
+      let color = 'grey'
       if (s.period.macd_histogram > 0) {
         color = 'green'
-      }
-      else if (s.period.macd_histogram < 0) {
+      } else if (s.period.macd_histogram < 0) {
         color = 'red'
       }
       cols.push(z(8, n(s.period.macd_histogram).format('+00.0000'), ' ')[color])
       cols.push(z(8, n(s.period.overbought_rsi).format('00'), ' ').cyan)
-    }
-    else {
+    } else {
       cols.push('         ')
     }
     return cols
@@ -100,7 +98,7 @@ module.exports = {
     sell_stop_pct: Phenotypes.Range0(1, 50),
     buy_stop_pct: Phenotypes.Range0(1, 50),
     profit_stop_enable_pct: Phenotypes.Range0(1, 20),
-    profit_stop_pct: Phenotypes.Range(1,20),
+    profit_stop_pct: Phenotypes.Range(1, 20),
 
     // -- strategy
     // have to be minimum 2 because talib will throw an "TA_BAD_PARAM" error

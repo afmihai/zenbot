@@ -1,4 +1,4 @@
-var c = module.exports = {}
+const c = module.exports = {}
 
 /// This conf is for NEURAL strategy as a profitable sim example, use --period=1m
 

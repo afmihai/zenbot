@@ -1,10 +1,10 @@
-var minimist = require('minimist')
-  , n = require('numbro')
-  // eslint-disable-next-line no-unused-vars
-  , colors = require('colors')
-  , objectifySelector = require('../lib/objectify-selector')
-  , engineFactory = require('../lib/engine')
-  , _ = require('lodash')
+const minimist = require('minimist')
+const n = require('numbro')
+// eslint-disable-next-line no-unused-vars
+const colors = require('colors')
+const objectifySelector = require('../lib/objectify-selector')
+const engineFactory = require('../lib/engine')
+const _ = require('lodash')
 
 module.exports = function (program, conf) {
   program
@@ -20,8 +20,10 @@ module.exports = function (program, conf) {
     .option('--max_slippage_pct <pct>', 'avoid buying at a slippage pct above this float', conf.max_slippage_pct)
     .option('--debug', 'output detailed debug info')
     .action(function (selector, cmd) {
-      var s = {options: minimist(process.argv)}
-      var so = s.options
+      const s = {
+        options: minimist(process.argv)
+      }
+      const so = s.options
       delete so._
       Object.keys(conf).forEach(function (k) {
         if (typeof cmd[k] !== 'undefined') {
@@ -31,14 +33,14 @@ module.exports = function (program, conf) {
       so.debug = cmd.debug
       so.buy_pct = cmd.pct
       so.selector = objectifySelector(selector || conf.selector)
-      var order_types = ['maker', 'taker']
+      const order_types = ['maker', 'taker']
       if (!order_types.includes(so.order_type)) {
         so.order_type = 'maker'
       }
       so.mode = 'live'
       so.strategy = conf.strategy
       so.stats = true
-      var engine = engineFactory(s, conf)
+      const engine = engineFactory(s, conf)
       engine.executeSignal('buy', function (err, order) {
         if (err) {
           console.error(err)
@@ -49,6 +51,7 @@ module.exports = function (program, conf) {
         }
         process.exit()
       }, cmd.size)
+
       function checkOrder () {
         if (!_.isEmpty(s.api_order)) {
           s.exchange.getQuote({product_id: s.product_id}, function (err, quote) {
