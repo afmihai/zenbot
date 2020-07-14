@@ -1,4 +1,4 @@
-const c = module.exports = {}
+const c = (module.exports = {})
 
 /// This conf is for NEURAL strategy as a profitable sim example, use --period=1m
 
@@ -167,7 +167,7 @@ c.notifiers = {}
 
 // xmpp config
 c.notifiers.xmpp = {}
-c.notifiers.xmpp.on = false  // false xmpp disabled; true xmpp enabled (credentials should be correct)
+c.notifiers.xmpp.on = false // false xmpp disabled; true xmpp enabled (credentials should be correct)
 c.notifiers.xmpp.jid = 'trader@domain.com'
 c.notifiers.xmpp.password = 'Password'
 c.notifiers.xmpp.host = 'domain.com'
@@ -216,7 +216,7 @@ c.notifiers.textbelt.key = 'textbelt'
 // end textbelt configs
 
 // output
-c.output  = {}
+c.output = {}
 
 // REST API
 c.output.api = {}

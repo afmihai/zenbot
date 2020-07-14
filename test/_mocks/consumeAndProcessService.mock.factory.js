@@ -1,21 +1,25 @@
-
-module.exports = (opts) => {
+module.exports = opts => {
   if (opts === undefined) {
-    opts = { }
+    opts = {}
   }
 
   if (opts.onSuccessFunc === undefined)
-    opts.onSuccessFunc = (cb) => { cb( {trade_id: 3001} ) }
+    opts.onSuccessFunc = cb => {
+      cb({ trade_id: 3001 })
+    }
 
   var rtn = {
-    setOnConsumeFunc: () => { },
-    setOnProcessFunc: () => { },
-    setAfterOnConsumeFunc: () => { },
-    setAfterOnProcessFunc: () => { },
-    go: () => { 
+    setOnConsumeFunc: () => {},
+    setOnProcessFunc: () => {},
+    setAfterOnConsumeFunc: () => {},
+    setAfterOnProcessFunc: () => {},
+    go: () => {
       return {
-        then: (cb /*, err*/) => { opts.onSuccessFunc(cb) }
-      }}
+        then: (cb /*, err*/) => {
+          opts.onSuccessFunc(cb)
+        },
+      }
+    },
   }
 
   return rtn

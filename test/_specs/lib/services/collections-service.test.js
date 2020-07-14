@@ -1,37 +1,44 @@
-
 var service = require('../../../../lib/services/collection-service')
 
-describe('Collections Service', function() {
-
-  describe(' trades ', function() {
-   
-    it('is available', function() {
+describe('Collections Service', function () {
+  describe(' trades ', function () {
+    it('is available', function () {
       expect(service).not.toBe(undefined)
     }),
+      it('returns the expected objects', function () {
+        var instance = service({
+          db: {
+            mongo: {
+              collection: function () {
+                return { createIndex: function () {} }
+              },
+            },
+          },
+        })
 
-    it('returns the expected objects', function() {
+        var rtn = instance.getTrades()
 
-      var instance = service({db:{mongo:{collection: function() { return { createIndex: function() { }} }  }}})
-
-      var rtn = instance.getTrades()
-
-      expect(rtn).toBeDefined()
-    })
+        expect(rtn).toBeDefined()
+      })
   }),
+    describe(' resume_markers ', function () {
+      it('is available', function () {
+        expect(service).not.toBe(undefined)
+      }),
+        it('returns the expected objects', function () {
+          var instance = service({
+            db: {
+              mongo: {
+                collection: function () {
+                  return { createIndex: function () {} }
+                },
+              },
+            },
+          })
 
-  describe(' resume_markers ', function() {
-    
-    it('is available', function() {
-      expect(service).not.toBe(undefined)
-    }),
+          var rtn = instance.getResumeMarkers()
 
-    it('returns the expected objects', function() {
-
-      var instance = service({db:{mongo:{collection: function() { return { createIndex: function() { }} }  }}})
-
-      var rtn = instance.getResumeMarkers()
-
-      expect(rtn).toBeDefined()
+          expect(rtn).toBeDefined()
+        })
     })
-  })
 })

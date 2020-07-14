@@ -22,7 +22,6 @@ Travis      ETH = 0xdA963A127BeCB08227583d11f912F400D5347060 , BTC = 3KKHdBJpEGx
 
 */
 
-
 const z = require('zero-fill')
 const n = require('numbro')
 const Phenotypes = require('../../../lib/phenotype')
@@ -44,14 +43,11 @@ module.exports = {
     this.option('mama_fastlimit', '', Number, 0.5)
     this.option('mama_slowlimit', '', Number, 0.09)
     this.option('price_source', '', String, 'HAohlc4')
-
   },
 
-  calculate: function () {
-  },
+  calculate: function () {},
 
   onPeriod: function (s, cb) {
-
     if (!s.mama) {
       s.mama = {
         src: [],
@@ -69,7 +65,7 @@ module.exports = {
         spp: [],
         phase: [],
         mama: [],
-        fama: []
+        fama: [],
       }
     }
 
@@ -87,32 +83,84 @@ module.exports = {
       }
 
       //s.mama.src.unshift((s.period.high + s.period.low) / 2)
-      s.mama.sp.unshift((4 * s.mama.src[0] + 3 * s.mama.src[1] + 2 * s.mama.src[2] + s.mama.src[3]) / 10.0)
-      s.mama.dt.unshift((.0962 * s.mama.sp[0] + .5769 * nz(s.mama.sp[2]) - .5769 * nz(s.mama.sp[4]) - .0962 * nz(s.mama.sp[6])) * (.075 * nz(s.mama.p[0]) + .54))
-      s.mama.q1.unshift((.0962 * s.mama.dt[0] + .5769 * nz(s.mama.dt[2]) - .5769 * nz(s.mama.dt[4]) - .0962 * nz(s.mama.dt[6])) * (.075 * nz(s.mama.p[0]) + .54))
+      s.mama.sp.unshift(
+        (4 * s.mama.src[0] +
+          3 * s.mama.src[1] +
+          2 * s.mama.src[2] +
+          s.mama.src[3]) /
+          10.0
+      )
+      s.mama.dt.unshift(
+        (0.0962 * s.mama.sp[0] +
+          0.5769 * nz(s.mama.sp[2]) -
+          0.5769 * nz(s.mama.sp[4]) -
+          0.0962 * nz(s.mama.sp[6])) *
+          (0.075 * nz(s.mama.p[0]) + 0.54)
+      )
+      s.mama.q1.unshift(
+        (0.0962 * s.mama.dt[0] +
+          0.5769 * nz(s.mama.dt[2]) -
+          0.5769 * nz(s.mama.dt[4]) -
+          0.0962 * nz(s.mama.dt[6])) *
+          (0.075 * nz(s.mama.p[0]) + 0.54)
+      )
       s.mama.i1.unshift(nz(s.mama.dt[3]))
-      let jI = (.0962 * s.mama.i1[0] + .5769 * nz(s.mama.i1[2]) - .5769 * nz(s.mama.i1[4]) - .0962 * nz(s.mama.i1[6])) * (.075 * nz(s.mama.p[0]) + .54)
-      let jq = (.0962 * s.mama.q1[0] + .5769 * nz(s.mama.q1[2]) - .5769 * nz(s.mama.q1[4]) - .0962 * nz(s.mama.q1[6])) * (.075 * nz(s.mama.p[0]) + .54)
+      let jI =
+        (0.0962 * s.mama.i1[0] +
+          0.5769 * nz(s.mama.i1[2]) -
+          0.5769 * nz(s.mama.i1[4]) -
+          0.0962 * nz(s.mama.i1[6])) *
+        (0.075 * nz(s.mama.p[0]) + 0.54)
+      let jq =
+        (0.0962 * s.mama.q1[0] +
+          0.5769 * nz(s.mama.q1[2]) -
+          0.5769 * nz(s.mama.q1[4]) -
+          0.0962 * nz(s.mama.q1[6])) *
+        (0.075 * nz(s.mama.p[0]) + 0.54)
       let i2_ = s.mama.i1[0] - jq
       let q2_ = s.mama.q1[0] + jI
-      s.mama.i2.unshift(.2 * i2_ + .8 * nz(s.mama.i2[0]))
-      s.mama.q2.unshift(.2 * q2_ + .8 * nz(s.mama.q2[0]))
-      let re_ = s.mama.i2[0] * nz(s.mama.i2[1]) + s.mama.q2[0] * nz(s.mama.q2[1])
-      let im_ = s.mama.i2[0] * nz(s.mama.q2[1]) - s.mama.q2[0] * nz(s.mama.i2[1])
-      s.mama.re.unshift(.2 * re_ + .8 * nz(s.mama.re[0]))
-      s.mama.im.unshift(.2 * im_ + .8 * nz(s.mama.im[0]))
-      s.mama.p1.unshift(iff(s.mama.im[0] != 0 && s.mama.re[0] != 0, 360 / Math.atan(s.mama.im[0] / s.mama.re[0]), nz(s.mama.p[0])))
-      let p2 = iff(s.mama.p1[0] > 1.5 * nz(s.mama.p1[1]), 1.5 * nz(s.mama.p1[1]), iff(s.mama.p1[0] < 0.67 * nz(s.mama.p1[1]), 0.67 * nz(s.mama.p1[1]), s.mama.p1[0]))
+      s.mama.i2.unshift(0.2 * i2_ + 0.8 * nz(s.mama.i2[0]))
+      s.mama.q2.unshift(0.2 * q2_ + 0.8 * nz(s.mama.q2[0]))
+      let re_ =
+        s.mama.i2[0] * nz(s.mama.i2[1]) + s.mama.q2[0] * nz(s.mama.q2[1])
+      let im_ =
+        s.mama.i2[0] * nz(s.mama.q2[1]) - s.mama.q2[0] * nz(s.mama.i2[1])
+      s.mama.re.unshift(0.2 * re_ + 0.8 * nz(s.mama.re[0]))
+      s.mama.im.unshift(0.2 * im_ + 0.8 * nz(s.mama.im[0]))
+      s.mama.p1.unshift(
+        iff(
+          s.mama.im[0] != 0 && s.mama.re[0] != 0,
+          360 / Math.atan(s.mama.im[0] / s.mama.re[0]),
+          nz(s.mama.p[0])
+        )
+      )
+      let p2 = iff(
+        s.mama.p1[0] > 1.5 * nz(s.mama.p1[1]),
+        1.5 * nz(s.mama.p1[1]),
+        iff(
+          s.mama.p1[0] < 0.67 * nz(s.mama.p1[1]),
+          0.67 * nz(s.mama.p1[1]),
+          s.mama.p1[0]
+        )
+      )
       s.mama.p3.unshift(iff(p2 < 6, 6, iff(p2 > 50, 50, p2)))
-      s.mama.p.unshift(.2 * s.mama.p3[0] + .8 * nz(s.mama.p3[1]))
-      s.mama.spp.unshift(.33 * s.mama.p[0] + .67 * nz(s.mama.spp[0]))
+      s.mama.p.unshift(0.2 * s.mama.p3[0] + 0.8 * nz(s.mama.p3[1]))
+      s.mama.spp.unshift(0.33 * s.mama.p[0] + 0.67 * nz(s.mama.spp[0]))
       s.mama.phase.unshift(Math.atan(s.mama.q1[0] / s.mama.i1[0]))
       let dphase_ = nz(s.mama.phase[1]) - s.mama.phase[0]
       let dphase = iff(dphase_ < 1, 1, dphase_)
       let alpha_ = s.options.mama_fastlimit / dphase
-      let alpha = iff(alpha_ < s.options.mama_slowlimit, s.options.mama_slowlimit, iff(alpha_ > s.options.mama_fastlimit, s.options.mama_fastlimit, alpha_))
-      s.mama.mama.unshift(alpha * s.mama.src[0] + (1 - alpha) * nz(s.mama.mama[0]))
-      s.mama.fama.unshift(.5 * alpha * s.mama.mama[0] + (1 - .5 * alpha) * nz(s.mama.fama[0]))
+      let alpha = iff(
+        alpha_ < s.options.mama_slowlimit,
+        s.options.mama_slowlimit,
+        iff(alpha_ > s.options.mama_fastlimit, s.options.mama_fastlimit, alpha_)
+      )
+      s.mama.mama.unshift(
+        alpha * s.mama.src[0] + (1 - alpha) * nz(s.mama.mama[0])
+      )
+      s.mama.fama.unshift(
+        0.5 * alpha * s.mama.mama[0] + (1 - 0.5 * alpha) * nz(s.mama.fama[0])
+      )
 
       s.period.mama = s.mama.mama[0]
       if (s.options.debug) {
@@ -125,25 +173,19 @@ module.exports = {
           s.mama[k].pop()
         })
 
-
       if (!s.in_preroll) {
-
-        if (crossover(s, 'mama', 'fama'))
-          s.signal = 'buy'
-        else if (crossunder(s, 'mama', 'fama'))
-          s.signal = 'sell'
-        else
-          s.signal = null
+        if (crossover(s, 'mama', 'fama')) s.signal = 'buy'
+        else if (crossunder(s, 'mama', 'fama')) s.signal = 'sell'
+        else s.signal = null
       }
     }
     cb()
   },
 
-
   onReport: function (s) {
     const cols = []
     let color = 'cyan'
-    let FamaMamaDelta = (s.period.mama - s.period.fama) / s.period.mama * 100
+    let FamaMamaDelta = ((s.period.mama - s.period.fama) / s.period.mama) * 100
 
     if (s.period.fama < s.period.mama) {
       color = 'green'
@@ -174,6 +216,6 @@ module.exports = {
     //Strategy Specific
     mama_fastlimit: Phenotypes.RangeFactor(0.1, 0.9, 0.1),
     mama_slow_limit: Phenotypes.RangeFactor(0.01, 0.09, 0.01),
-    price_source: Phenotypes.ListOption(['hl2', 'hlc3', 'ohlc4', 'HAohlc4'])
-  }
+    price_source: Phenotypes.ListOption(['hl2', 'hlc3', 'ohlc4', 'HAohlc4']),
+  },
 }

@@ -11,31 +11,71 @@ module.exports = {
     'Buy when (EMA - last(EMA) > 0) and sell when (EMA - last(EMA) < 0). Optional buy on low RSI.',
 
   getOptions: function () {
-    this.option('period', 'period length, same as --period_length', String, '2m')
-    this.option('period_length', 'period length, same as --period', String, '2m')
+    this.option(
+      'period',
+      'period length, same as --period_length',
+      String,
+      '2m'
+    )
+    this.option(
+      'period_length',
+      'period length, same as --period',
+      String,
+      '2m'
+    )
     this.option('min_periods', 'min. number of history periods', Number, 52)
     this.option('trend_ema', 'number of periods for trend EMA', Number, 26)
-    this.option('neutral_rate', 'avoid trades if abs(trend_ema) under this float (0 to disable, "auto" for a variable filter)', Number, 'auto')
-    this.option('oversold_rsi_periods', 'number of periods for oversold RSI', Number, 14)
+    this.option(
+      'neutral_rate',
+      'avoid trades if abs(trend_ema) under this float (0 to disable, "auto" for a variable filter)',
+      Number,
+      'auto'
+    )
+    this.option(
+      'oversold_rsi_periods',
+      'number of periods for oversold RSI',
+      Number,
+      14
+    )
     this.option('oversold_rsi', 'buy when RSI reaches this value', Number, 10)
   },
 
-  calculate: function(s) {
+  calculate: function (s) {
     ema(s, 'trend_ema', s.options.trend_ema)
     if (s.options.oversold_rsi) {
       // sync RSI display with oversold RSI periods
       s.options.rsi_periods = s.options.oversold_rsi_periods
       rsi(s, 'oversold_rsi', s.options.oversold_rsi_periods)
-      if (!s.in_preroll && s.period.oversold_rsi <= s.options.oversold_rsi && !s.oversold && !s.cancel_down) {
+      if (
+        !s.in_preroll &&
+        s.period.oversold_rsi <= s.options.oversold_rsi &&
+        !s.oversold &&
+        !s.cancel_down
+      ) {
         s.oversold = true
-        if (s.options.mode !== 'sim' || s.options.verbose) console.log(('\noversold at ' + s.period.oversold_rsi + ' RSI, preparing to buy\n').cyan)
+        if (s.options.mode !== 'sim' || s.options.verbose)
+          console.log(
+            (
+              '\noversold at ' +
+              s.period.oversold_rsi +
+              ' RSI, preparing to buy\n'
+            ).cyan
+          )
       }
     }
     if (s.period.trend_ema && s.lookback[0] && s.lookback[0].trend_ema) {
-      s.period.trend_ema_rate = (s.period.trend_ema - s.lookback[0].trend_ema) / s.lookback[0].trend_ema * 100
+      s.period.trend_ema_rate =
+        ((s.period.trend_ema - s.lookback[0].trend_ema) /
+          s.lookback[0].trend_ema) *
+        100
     }
     if (s.options.neutral_rate === 'auto') {
-      stddev(s, 'trend_ema_stddev', Math.floor(s.options.trend_ema / 2), 'trend_ema_rate')
+      stddev(
+        s,
+        'trend_ema_stddev',
+        Math.floor(s.options.trend_ema / 2),
+        'trend_ema_rate'
+      )
     } else {
       s.period.trend_ema_stddev = s.options.neutral_rate
     }
@@ -59,7 +99,10 @@ module.exports = {
         s.trend = 'up'
         s.signal = !s.acted_on_trend ? 'buy' : null
         s.cancel_down = false
-      } else if (!s.cancel_down && s.period.trend_ema_rate < (s.period.trend_ema_stddev * -1)) {
+      } else if (
+        !s.cancel_down &&
+        s.period.trend_ema_rate < s.period.trend_ema_stddev * -1
+      ) {
         if (s.trend !== 'down') {
           s.acted_on_trend = false
         }
@@ -70,7 +113,7 @@ module.exports = {
     cb()
   },
 
-  onReport: function(s) {
+  onReport: function (s) {
     const cols = []
     if (typeof s.period.trend_ema_stddev === 'number') {
       let color = 'grey'
@@ -103,12 +146,11 @@ module.exports = {
     sell_stop_pct: Phenotypes.Range0(1, 50),
     buy_stop_pct: Phenotypes.Range0(1, 50),
     profit_stop_enable_pct: Phenotypes.Range0(1, 20),
-    profit_stop_pct: Phenotypes.Range(1,20),
+    profit_stop_pct: Phenotypes.Range(1, 20),
 
     // -- strategy
     trend_ema: Phenotypes.Range(1, 40),
     oversold_rsi_periods: Phenotypes.Range(5, 50),
-    oversold_rsi: Phenotypes.Range(20, 100)
+    oversold_rsi: Phenotypes.Range(20, 100),
   },
 }
-

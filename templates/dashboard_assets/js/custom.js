@@ -2,7 +2,6 @@
 /*global $, jQuery, alert*/
 
 $(document).ready(function () {
-
   'use strict'
 
   var body = $('body')
@@ -20,16 +19,19 @@ $(document).ready(function () {
   $(function () {
     var set = function () {
         var topOffset = 60,
-          width = (window.innerWidth > 0) ? window.innerWidth : this.screen.width,
-          height = ((window.innerHeight > 0) ? window.innerHeight : this.screen.height) - 1
-
-
+          width = window.innerWidth > 0 ? window.innerWidth : this.screen.width,
+          height =
+            (window.innerHeight > 0 ? window.innerHeight : this.screen.height) -
+            1
 
         /* ===== This is for resizing window ===== */
 
         if (width < 1170) {
           body.addClass('content-wrapper')
-          $('.sidebar-nav, .slimScrollDiv').css('overflow-x', 'visible').parent().css('overflow', 'visible')
+          $('.sidebar-nav, .slimScrollDiv')
+            .css('overflow-x', 'visible')
+            .parent()
+            .css('overflow', 'visible')
         } else {
           body.removeClass('content-wrapper')
         }
@@ -39,20 +41,25 @@ $(document).ready(function () {
           height = 1
         }
         if (height > topOffset) {
-          $('#page-wrapper').css('min-height', (height) + 'px')
+          $('#page-wrapper').css('min-height', height + 'px')
         }
       },
       url = window.location,
-      element = $('ul.nav a').filter(function () {
-        return this.href === url || url.href.indexOf(this.href) === 0
-      }).addClass('active').parent().parent().addClass('in').parent()
+      element = $('ul.nav a')
+        .filter(function () {
+          return this.href === url || url.href.indexOf(this.href) === 0
+        })
+        .addClass('active')
+        .parent()
+        .parent()
+        .addClass('in')
+        .parent()
     if (element.is('li')) {
       element.addClass('active')
     }
     $(window).ready(set)
     $(window).bind('resize', set)
   })
-
 
   /* ===== Tooltip Initialization ===== */
 
@@ -87,13 +94,13 @@ $(document).ready(function () {
     height: '100%',
     position: 'right',
     size: '5px',
-    color: '#dcdcdc'
+    color: '#dcdcdc',
   })
   $('.slimscrollsidebar').slimScroll({
     height: '100%',
     position: 'right',
     size: '6px',
-    color: 'rgba(0,0,0,0.3)'
+    color: 'rgba(0,0,0,0.3)',
   })
 
   /* ===== Resize all elements ===== */

@@ -8,7 +8,7 @@ module.exports = function (program) {
     .description('list available selectors')
     .action(function (/*cmd*/) {
       const exchanges = fs.readdirSync('./extensions/exchanges')
-      exchanges.forEach(function(exchange){
+      exchanges.forEach(function (exchange) {
         if (exchange === 'sim' || exchange === '_stub') return
 
         console.log(`${exchange}:`)
@@ -21,7 +21,15 @@ module.exports = function (program) {
           return 0
         })
         products.forEach(function (p) {
-          console.log('  ' + exchange.cyan + '.'.grey + p.asset.green + '-'.grey + p.currency.cyan + (p.label ? ('   (' + p.label + ')').grey : ''))
+          console.log(
+            '  ' +
+              exchange.cyan +
+              '.'.grey +
+              p.asset.green +
+              '-'.grey +
+              p.currency.cyan +
+              (p.label ? ('   (' + p.label + ')').grey : '')
+          )
         })
       })
       process.exit()

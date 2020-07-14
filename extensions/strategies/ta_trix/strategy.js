@@ -6,14 +6,25 @@ const Phenotypes = require('../../../lib/phenotype')
 
 module.exports = {
   name: 'ta_trix',
-  description: 'TRIX - 1-day Rate-Of-Change (ROC) of a Triple Smooth EMA with rsi oversold',
+  description:
+    'TRIX - 1-day Rate-Of-Change (ROC) of a Triple Smooth EMA with rsi oversold',
 
   getOptions: function () {
     this.option('period', 'period length eg 10m', String, '5m')
     this.option('min_periods', 'min. number of history periods', Number, 52)
     this.option('timeperiod', 'timeperiod for TRIX', Number, 30)
-    this.option('overbought_rsi_periods', 'number of periods for overbought RSI', Number, 25)
-    this.option('overbought_rsi', 'sold when RSI exceeds this value', Number, 70)
+    this.option(
+      'overbought_rsi_periods',
+      'number of periods for overbought RSI',
+      Number,
+      25
+    )
+    this.option(
+      'overbought_rsi',
+      'sold when RSI exceeds this value',
+      Number,
+      70
+    )
   },
 
   calculate: function (s) {
@@ -21,11 +32,21 @@ module.exports = {
       // sync RSI display with overbought RSI periods
       s.options.rsi_periods = s.options.overbought_rsi_periods
       rsi(s, 'overbought_rsi', s.options.overbought_rsi_periods)
-      if (!s.in_preroll && s.period.overbought_rsi >= s.options.overbought_rsi && !s.overbought) {
+      if (
+        !s.in_preroll &&
+        s.period.overbought_rsi >= s.options.overbought_rsi &&
+        !s.overbought
+      ) {
         s.overbought = true
 
         if (s.options.mode === 'sim' && s.options.verbose) {
-          console.log(('\noverbought at ' + s.period.overbought_rsi + ' RSI, preparing to sold\n').cyan)
+          console.log(
+            (
+              '\noverbought at ' +
+              s.period.overbought_rsi +
+              ' RSI, preparing to sold\n'
+            ).cyan
+          )
         }
       }
     }
@@ -40,34 +61,36 @@ module.exports = {
       }
     }
 
-    ta_trix(s, s.options.timeperiod).then(function (signal) {
-      s.period['trix'] = signal
+    ta_trix(s, s.options.timeperiod)
+      .then(function (signal) {
+        s.period['trix'] = signal
 
-      if (s.period.trix && s.lookback[0] && s.lookback[0].trix) {
-        s.period.trend_trix = s.period.trix >= 0 ? 'up' : 'down'
-      }
-
-      if (s.period.trend_trix === 'up') {
-        if (s.trend !== 'up') {
-          s.acted_on_trend = false
+        if (s.period.trix && s.lookback[0] && s.lookback[0].trix) {
+          s.period.trend_trix = s.period.trix >= 0 ? 'up' : 'down'
         }
 
-        s.trend = 'up'
-        s.signal = !s.acted_on_trend ? 'buy' : null
-      } else if (s.period.trend_trix === 'down') {
-        if (s.trend !== 'down') {
-          s.acted_on_trend = false
+        if (s.period.trend_trix === 'up') {
+          if (s.trend !== 'up') {
+            s.acted_on_trend = false
+          }
+
+          s.trend = 'up'
+          s.signal = !s.acted_on_trend ? 'buy' : null
+        } else if (s.period.trend_trix === 'down') {
+          if (s.trend !== 'down') {
+            s.acted_on_trend = false
+          }
+
+          s.trend = 'down'
+          s.signal = !s.acted_on_trend ? 'sell' : null
         }
 
-        s.trend = 'down'
-        s.signal = !s.acted_on_trend ? 'sell' : null
-      }
-
-      cb()
-    }).catch(function (error) {
-      console.log(error)
-      cb()
-    })
+        cb()
+      })
+      .catch(function (error) {
+        console.log(error)
+        cb()
+      })
   },
 
   onReport: function (s) {
@@ -95,7 +118,6 @@ module.exports = {
 
     timeperiod: Phenotypes.Range(1, 60),
     overbought_rsi_periods: Phenotypes.Range(1, 50),
-    overbought_rsi: Phenotypes.Range(20, 100)
-  }
+    overbought_rsi: Phenotypes.Range(20, 100),
+  },
 }
-

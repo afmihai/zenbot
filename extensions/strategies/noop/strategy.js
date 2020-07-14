@@ -6,21 +6,72 @@ const Phenotypes = require('../../../lib/phenotype')
 
 module.exports = {
   name: 'noop',
-  description: 'Attempts to buy low and sell high by tracking RSI high-water readings.',
+  description:
+    'Attempts to buy low and sell high by tracking RSI high-water readings.',
 
   getOptions: function () {
-    this.option('period', 'period length, same as --period_length', String, '15m')
-    this.option('period_length', 'period length, same as --period', String, '15m')
+    this.option(
+      'period',
+      'period length, same as --period_length',
+      String,
+      '15m'
+    )
+    this.option(
+      'period_length',
+      'period length, same as --period',
+      String,
+      '15m'
+    )
     this.option('min_periods', 'min. number of history periods', Number, 52)
     this.option('rsi_periods', 'number of RSI periods', Number, 14)
-    this.option('oversold_rsi', 'buy when RSI reaches or drops below this value', Number, 30)
-    this.option('overbought_rsi', 'sell when RSI reaches or goes above this value', Number, 82)
-    this.option('rsi_recover', 'allow RSI to recover this many points before buying', Number, 3)
-    this.option('rsi_drop', 'allow RSI to fall this many points before selling', Number, 0)
-    this.option('rsi_divisor', 'sell when RSI reaches high-water reading divided by this value', Number, 2)
-    this.option('bollinger_time', 'times of standard deviation between the upper band and the moving averages', Number, 2)
-    this.option('bollinger_upper_bound_pct', 'pct the current price should be near the bollinger upper bound before we sell', Number, 0)
-    this.option('bollinger_lower_bound_pct', 'pct the current price should be near the bollinger lower bound before we buy', Number, 0)
+    this.option(
+      'oversold_rsi',
+      'buy when RSI reaches or drops below this value',
+      Number,
+      30
+    )
+    this.option(
+      'overbought_rsi',
+      'sell when RSI reaches or goes above this value',
+      Number,
+      82
+    )
+    this.option(
+      'rsi_recover',
+      'allow RSI to recover this many points before buying',
+      Number,
+      3
+    )
+    this.option(
+      'rsi_drop',
+      'allow RSI to fall this many points before selling',
+      Number,
+      0
+    )
+    this.option(
+      'rsi_divisor',
+      'sell when RSI reaches high-water reading divided by this value',
+      Number,
+      2
+    )
+    this.option(
+      'bollinger_time',
+      'times of standard deviation between the upper band and the moving averages',
+      Number,
+      2
+    )
+    this.option(
+      'bollinger_upper_bound_pct',
+      'pct the current price should be near the bollinger upper bound before we sell',
+      Number,
+      0
+    )
+    this.option(
+      'bollinger_lower_bound_pct',
+      'pct the current price should be near the bollinger lower bound before we buy',
+      Number,
+      0
+    )
   },
 
   calculate: function (s) {
@@ -43,7 +94,11 @@ module.exports = {
           s.rsi_high = s.period.rsi
         }
       }
-      if (s.trend !== 'oversold' && s.trend !== 'long' && s.period.rsi >= s.options.overbought_rsi) {
+      if (
+        s.trend !== 'oversold' &&
+        s.trend !== 'long' &&
+        s.period.rsi >= s.options.overbought_rsi
+      ) {
         s.rsi_high = s.period.rsi
         s.trend = 'long'
       }
@@ -70,9 +125,15 @@ module.exports = {
       if (s.period.bollinger.upperBound && s.period.bollinger.lowerBound) {
         let upperBound = s.period.bollinger.upperBound
         let lowerBound = s.period.bollinger.lowerBound
-        if (s.period.close > (upperBound / 100) * (100 - s.options.bollinger_upper_bound_pct)) {
+        if (
+          s.period.close >
+          (upperBound / 100) * (100 - s.options.bollinger_upper_bound_pct)
+        ) {
           s.signal = 'sell'
-        } else if (s.period.close < (lowerBound / 100) * (100 + s.options.bollinger_lower_bound_pct)) {
+        } else if (
+          s.period.close <
+          (lowerBound / 100) * (100 + s.options.bollinger_lower_bound_pct)
+        ) {
           s.signal = 'buy'
         } else {
           s.signal = null // hold
@@ -117,9 +178,8 @@ module.exports = {
     rsi_drop: Phenotypes.Range(0, 100),
     rsi_divisor: Phenotypes.Range(1, 10),
     bollinger_size: Phenotypes.Range(1, 40),
-    bollinger_time: Phenotypes.RangeFloat(1,6),
+    bollinger_time: Phenotypes.RangeFloat(1, 6),
     bollinger_upper_bound_pct: Phenotypes.RangeFloat(-1, 30),
-    bollinger_lower_bound_pct: Phenotypes.RangeFloat(-1, 30)
-  }
+    bollinger_lower_bound_pct: Phenotypes.RangeFloat(-1, 30),
+  },
 }
-

@@ -44,16 +44,45 @@ module.exports = {
   description: '',
 
   getOptions: function () {
-    this.option('period', 'period length, same as --period_length', String, '30m')
-    this.option('period_length', 'period length, same as --period', String, '30m')
-    this.option('fish_pct_change', 'percent change of fisher transform for reversal', Number, 0)
-    this.option('length', 'number of past periods to use including current', Number, 10)
-    this.option('src', 'use period.close if not defined. can be hl2, hlc3, ohlc4, HAhlc3, HAohlc4', String, 'hl2')
-    this.option('pos_length', 'check this number of previous periods have opposing pos value', Number, 1)
+    this.option(
+      'period',
+      'period length, same as --period_length',
+      String,
+      '30m'
+    )
+    this.option(
+      'period_length',
+      'period length, same as --period',
+      String,
+      '30m'
+    )
+    this.option(
+      'fish_pct_change',
+      'percent change of fisher transform for reversal',
+      Number,
+      0
+    )
+    this.option(
+      'length',
+      'number of past periods to use including current',
+      Number,
+      10
+    )
+    this.option(
+      'src',
+      'use period.close if not defined. can be hl2, hlc3, ohlc4, HAhlc3, HAohlc4',
+      String,
+      'hl2'
+    )
+    this.option(
+      'pos_length',
+      'check this number of previous periods have opposing pos value',
+      Number,
+      1
+    )
   },
 
-  calculate: function () {
-  },
+  calculate: function () {},
 
   onPeriod: function (s, cb) {
     // console.log('')
@@ -72,15 +101,34 @@ module.exports = {
       maxH = Math.max(s.period.src, ...lbks),
       minL = Math.min(s.period.src, ...lbks)
 
-    s.eft.n1.unshift(0.33 * 2 * ((s.period.src - minL) / (maxH - minL) - 0.5) + 0.67 * tv.nz(s.eft.n1[0]))
+    s.eft.n1.unshift(
+      0.33 * 2 * ((s.period.src - minL) / (maxH - minL) - 0.5) +
+        0.67 * tv.nz(s.eft.n1[0])
+    )
 
-    let n2 = tv.iff(s.eft.n1[0] > 0.99, 0.999, tv.iff(s.eft.n1[0] < -0.99, -0.999, s.eft.n1[0]))
+    let n2 = tv.iff(
+      s.eft.n1[0] > 0.99,
+      0.999,
+      tv.iff(s.eft.n1[0] < -0.99, -0.999, s.eft.n1[0])
+    )
 
-    s.eft.fish.unshift(0.5 * Math.log((1 + n2) / (1 - n2)) + 0.5 * tv.nz(s.eft.fish[0]))
+    s.eft.fish.unshift(
+      0.5 * Math.log((1 + n2) / (1 - n2)) + 0.5 * tv.nz(s.eft.fish[0])
+    )
 
     s.eft.pos.unshift(
-      tv.iff(s.eft.fish[0] > tv.nz(s.eft.fish[1] * (1 + s.options.fish_pct_change / 100)), 1,
-        tv.iff(s.eft.fish[0] < tv.nz(s.eft.fish[1] * (1 - s.options.fish_pct_change / 100)), -1, tv.nz(s.eft.pos[0], 0))))
+      tv.iff(
+        s.eft.fish[0] >
+          tv.nz(s.eft.fish[1] * (1 + s.options.fish_pct_change / 100)),
+        1,
+        tv.iff(
+          s.eft.fish[0] <
+            tv.nz(s.eft.fish[1] * (1 - s.options.fish_pct_change / 100)),
+          -1,
+          tv.nz(s.eft.pos[0], 0)
+        )
+      )
+    )
 
     if (!s.in_preroll) {
       if (s.options.pos_length === 1) {
@@ -92,7 +140,6 @@ module.exports = {
           s.signal = null
         }
       } else {
-
         let pos = s.eft.pos.slice(1, s.options.pos_length + 1),
           posUp = s.eft.pos[0] === -1 && pos.every(pos => pos === 1),
           posDn = s.eft.pos[0] === 1 && pos.every(pos => pos === -1)
@@ -101,8 +148,7 @@ module.exports = {
           s.signal = 'buy'
         } else if (posDn) {
           s.signal = 'sell'
-        } else
-          s.signal = null
+        } else s.signal = null
       }
     }
 
@@ -123,7 +169,6 @@ module.exports = {
   },
 
   phenotypes: {
-
     //General Options
     period_length: Phenotypes.RangePeriod(5, 300, 'm'),
     min_periods: Phenotypes.Range(10, 40),
@@ -139,8 +184,15 @@ module.exports = {
     length: Phenotypes.Range(1, 30),
     fish_pct_change: Phenotypes.Range(-25, 75),
     pos_length: Phenotypes.Range(1, 6),
-    src: Phenotypes.ListOption(['close', 'hl2', 'hlc3', 'ohlc4', 'HAhlc3', 'HAohlc4'])
-  }
+    src: Phenotypes.ListOption([
+      'close',
+      'hl2',
+      'hlc3',
+      'ohlc4',
+      'HAhlc3',
+      'HAohlc4',
+    ]),
+  },
 }
 
 /*

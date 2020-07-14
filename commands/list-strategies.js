@@ -8,9 +8,12 @@ module.exports = function (program, conf) {
     .description('list available strategies')
     .action(function (/*cmd*/) {
       const strategies = fs.readdirSync('./extensions/strategies')
-      strategies.forEach((strategy) => {
+      strategies.forEach(strategy => {
         let strat = require(`../extensions/strategies/${strategy}/strategy`)
-        console.log(strat.name.cyan + (strat.name === conf.strategy ? ' (default)'.grey : ''))
+        console.log(
+          strat.name.cyan +
+            (strat.name === conf.strategy ? ' (default)'.grey : '')
+        )
         if (strat.description) {
           console.log('  description:'.grey)
           console.log('    ' + strat.description.grey)
@@ -18,8 +21,16 @@ module.exports = function (program, conf) {
         console.log('  options:'.grey)
         const ctx = {
           option: function (name, desc, type, def) {
-            console.log(('    --' + name).green + '=<value>'.grey + '  ' + desc.grey + (typeof def !== 'undefined' ? (' (default: '.grey + def + ')'.grey) : ''))
-          }
+            console.log(
+              ('    --' + name).green +
+                '=<value>'.grey +
+                '  ' +
+                desc.grey +
+                (typeof def !== 'undefined'
+                  ? ' (default: '.grey + def + ')'.grey
+                  : '')
+            )
+          },
         }
         strat.getOptions.call(ctx, strat)
         console.log()

@@ -1,4 +1,4 @@
-var c = module.exports = {}
+var c = (module.exports = {})
 
 // mongo configuration
 c.mongo = {}
@@ -179,11 +179,12 @@ c.notifiers = {}
 
 //common
 
-c.notifiers.only_completed_trades = process.env.ZENBOT_NOTIFY_ONLY_COMPLETED_TRADES || false // Filter to notifier's messages for getting Commpleted Trades info.
+c.notifiers.only_completed_trades =
+  process.env.ZENBOT_NOTIFY_ONLY_COMPLETED_TRADES || false // Filter to notifier's messages for getting Commpleted Trades info.
 
 // xmpp config
 c.notifiers.xmpp = {}
-c.notifiers.xmpp.on = process.env.ZENBOT_XMPP_ENABLE || false  // false xmpp disabled; true xmpp enabled (credentials should be correct)
+c.notifiers.xmpp.on = process.env.ZENBOT_XMPP_ENABLE || false // false xmpp disabled; true xmpp enabled (credentials should be correct)
 c.notifiers.xmpp.jid = process.env.ZENBOT_XMPP_JID || 'trader@domain.com'
 c.notifiers.xmpp.password = process.env.ZENBOT_XMPP_PASSWORD || ''
 c.notifiers.xmpp.host = process.env.ZENBOT_XMPP_HOST || 'domain.com'
@@ -214,18 +215,25 @@ c.notifiers.slack.webhook_url = process.env.ZENBOT_SLACK_WEBHOOK_URL || ''
 // ADAMANT Messenger config
 c.notifiers.adamant = {}
 c.notifiers.adamant.on = process.env.ZENBOT_ADAMANT_ENABLE || false
-c.notifiers.adamant.nodes = typeof process.env.ZENBOT_ADAMANT_NODES !== 'undefined' ? process.env.ZENBOT_ADAMANT_NODES.split(',') : [
-  'https://endless.adamant.im',
-  'https://clown.adamant.im',
-  'https://bid.adamant.im',
-  'https://unusual.adamant.im',
-  'https://debate.adamant.im',
-  'http://185.231.245.26:36666',
-  'https://lake.adamant.im',
-  'http://localhost:36666'
-]
-c.notifiers.adamant.fromPassphrase = process.env.ZENBOT_ADAMANT_FROM_PASSPHRASE || ''
-c.notifiers.adamant.toAddresses = typeof process.env.ZENBOT_ADAMANT_TO_ADDRESSES !== 'undefined' ? process.env.ZENBOT_ADAMANT_TO_ADDRESSES.split(',') : ['']
+c.notifiers.adamant.nodes =
+  typeof process.env.ZENBOT_ADAMANT_NODES !== 'undefined'
+    ? process.env.ZENBOT_ADAMANT_NODES.split(',')
+    : [
+        'https://endless.adamant.im',
+        'https://clown.adamant.im',
+        'https://bid.adamant.im',
+        'https://unusual.adamant.im',
+        'https://debate.adamant.im',
+        'http://185.231.245.26:36666',
+        'https://lake.adamant.im',
+        'http://localhost:36666',
+      ]
+c.notifiers.adamant.fromPassphrase =
+  process.env.ZENBOT_ADAMANT_FROM_PASSPHRASE || ''
+c.notifiers.adamant.toAddresses =
+  typeof process.env.ZENBOT_ADAMANT_TO_ADDRESSES !== 'undefined'
+    ? process.env.ZENBOT_ADAMANT_TO_ADDRESSES.split(',')
+    : ['']
 // end ADAMANT Messenger config
 
 // discord configs
@@ -262,7 +270,8 @@ c.notifiers.pushover.priority = process.env.ZENBOT_PUSHOVER_PRIORITY || '0' // c
 // telegram configs
 c.notifiers.telegram = {}
 c.notifiers.telegram.on = process.env.ZENBOT_TELEGRAM_ENABLE || false // false telegram disabled; true telegram enabled (key should be correct)
-c.notifiers.telegram.interactive = process.env.ZENBOT_TELEGRAM_INTERACTIVE || false // true telegram is interactive
+c.notifiers.telegram.interactive =
+  process.env.ZENBOT_TELEGRAM_INTERACTIVE || false // true telegram is interactive
 c.notifiers.telegram.bot_token = process.env.ZENBOT_TELEGRAM_BOT_TOKEN
 c.notifiers.telegram.chat_id = process.env.ZENBOT_TELEGRAM_CHAT_ID // the id of the chat the messages should be send in
 // end telegram configs

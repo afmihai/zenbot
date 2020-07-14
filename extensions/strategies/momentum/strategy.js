@@ -8,9 +8,24 @@ module.exports = {
   description: 'MOM = Close(Period) - Close(Length)',
 
   getOptions: function () {
-    this.option('period', 'period length, same as --period_length', String, '1h')
-    this.option('period_length', 'period length, same as --period', String, '1h')
-    this.option('momentum_size', 'number of periods to look back for momentum', Number, 5)
+    this.option(
+      'period',
+      'period length, same as --period_length',
+      String,
+      '1h'
+    )
+    this.option(
+      'period_length',
+      'period length, same as --period',
+      String,
+      '1h'
+    )
+    this.option(
+      'momentum_size',
+      'number of periods to look back for momentum',
+      Number,
+      5
+    )
   },
 
   calculate: function (s) {
@@ -37,7 +52,8 @@ module.exports = {
   },
 
   onReport: function (s) {
-    let cols = [], color
+    let cols = [],
+      color
     if (s.period.mom0 != null) {
       color = s.period.mom0 < 0 ? 'red' : s.period.mom0 > 0 ? 'green' : 'grey'
       cols.push(z(5, n(s.period.mom0).format('000'), ' ')[color])
@@ -66,7 +82,6 @@ module.exports = {
     profit_stop_pct: Phenotypes.Range(1, 20),
 
     // -- strategy
-    momentum_size: Phenotypes.Range(1, 20)
-  }
+    momentum_size: Phenotypes.Range(1, 20),
+  },
 }
-

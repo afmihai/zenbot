@@ -6,19 +6,65 @@ const Phenotypes = require('../../../lib/phenotype')
 
 module.exports = {
   name: 'wavetrend',
-  description: 'Buy when (Signal < Oversold) and sell when (Signal > Overbought).',
+  description:
+    'Buy when (Signal < Oversold) and sell when (Signal > Overbought).',
 
   getOptions: function () {
-    this.option('period', 'period length, same as --period_length', String, '1h')
-    this.option('period_length', 'period length, same as --period', String, '1h')
+    this.option(
+      'period',
+      'period length, same as --period_length',
+      String,
+      '1h'
+    )
+    this.option(
+      'period_length',
+      'period length, same as --period',
+      String,
+      '1h'
+    )
     this.option('min_periods', 'min. number of history periods', Number, 21)
-    this.option('wavetrend_channel_length', 'wavetrend channel length', Number, 10)
-    this.option('wavetrend_average_length', 'wavetrend average length', Number, 21)
-    this.option('wavetrend_overbought_1', 'wavetrend overbought limit 1', Number, 60)
-    this.option('wavetrend_overbought_2', 'wavetrend overbought limit 2', Number, 53)
-    this.option('wavetrend_oversold_1', 'wavetrend oversold limit 1', Number, -60)
-    this.option('wavetrend_oversold_2', 'wavetrend oversold limit 2', Number, -53)
-    this.option('wavetrend_trends', 'act on trends instead of limits', Boolean, false)
+    this.option(
+      'wavetrend_channel_length',
+      'wavetrend channel length',
+      Number,
+      10
+    )
+    this.option(
+      'wavetrend_average_length',
+      'wavetrend average length',
+      Number,
+      21
+    )
+    this.option(
+      'wavetrend_overbought_1',
+      'wavetrend overbought limit 1',
+      Number,
+      60
+    )
+    this.option(
+      'wavetrend_overbought_2',
+      'wavetrend overbought limit 2',
+      Number,
+      53
+    )
+    this.option(
+      'wavetrend_oversold_1',
+      'wavetrend oversold limit 1',
+      Number,
+      -60
+    )
+    this.option(
+      'wavetrend_oversold_2',
+      'wavetrend oversold limit 2',
+      Number,
+      -53
+    )
+    this.option(
+      'wavetrend_trends',
+      'act on trends instead of limits',
+      Boolean,
+      false
+    )
   },
 
   calculate: function (s) {
@@ -37,16 +83,14 @@ module.exports = {
       let prev_ema = s.lookback[0].ema
       let ema = s.period.ema
 
-      if (!s.sell_signal_close)
-        s.sell_signal_close = 0
-      if (!s.buy_signal_close)
-        s.buy_signal_close = 0
-      if (!s.sell_pct_orig)
-        s.sell_pct_orig = s.sell_pct
-      if (!s.buy_pct_orig)
-        s.buy_pct_orig = s.sell_pct
+      if (!s.sell_signal_close) s.sell_signal_close = 0
+      if (!s.buy_signal_close) s.buy_signal_close = 0
+      if (!s.sell_pct_orig) s.sell_pct_orig = s.sell_pct
+      if (!s.buy_pct_orig) s.buy_pct_orig = s.sell_pct
 
-      s.options.wavetrend_trends = (s.options.wavetrend_trends === 'true' || s.options.wavetrend_trends === true)
+      s.options.wavetrend_trends =
+        s.options.wavetrend_trends === 'true' ||
+        s.options.wavetrend_trends === true
 
       if (s.options.wavetrend_trends === true) {
         if (wto > prev_wto) {
@@ -71,7 +115,10 @@ module.exports = {
         }
       }
       if (s.options.wavetrend_trends === false) {
-        if ((wto < s.options.wavetrend_overbought_2) && (prev_wto < s.options.wavetrend_overbought_2)) {
+        if (
+          wto < s.options.wavetrend_overbought_2 &&
+          prev_wto < s.options.wavetrend_overbought_2
+        ) {
           s.sell_pct = 99
           //console.log('\n')
           //console.log(prev_wto, wto, prev_hcl3, hcl3, prev_ema, ema)
@@ -83,7 +130,10 @@ module.exports = {
             }
             s.trend = 'up'
           }
-        } else if ((wto > s.options.wavetrend_oversold_2) && (prev_wto > s.options.wavetrend_oversold_2)) {
+        } else if (
+          wto > s.options.wavetrend_oversold_2 &&
+          prev_wto > s.options.wavetrend_oversold_2
+        ) {
           s.buy_pct = 99
           //console.log('\n')
           //console.log(prev_wto, wto, prev_hcl3, hcl3, prev_ema, ema)
@@ -95,7 +145,10 @@ module.exports = {
             }
             s.trend = 'down'
           }
-        } else if ((wto < s.options.wavetrend_overbought_1) && (prev_wto < s.options.wavetrend_overbought_1)) {
+        } else if (
+          wto < s.options.wavetrend_overbought_1 &&
+          prev_wto < s.options.wavetrend_overbought_1
+        ) {
           s.sell_pct = 5
           //console.log('\n')
           //console.log(prev_wto, wto, prev_hcl3, hcl3, prev_ema, ema)
@@ -107,7 +160,10 @@ module.exports = {
             }
             s.trend = 'up'
           }
-        } else if ((wto > s.options.wavetrend_oversold_1) && (prev_wto > s.options.wavetrend_oversold_1)) {
+        } else if (
+          wto > s.options.wavetrend_oversold_1 &&
+          prev_wto > s.options.wavetrend_oversold_1
+        ) {
           s.buy_pct = 5
           //console.log('\n')
           //console.log(prev_wto, wto, prev_hcl3, hcl3, prev_ema, ema)
@@ -185,7 +241,6 @@ module.exports = {
     wavetrend_overbought_2: Phenotypes.Range(1, 100),
     wavetrend_oversold_1: Phenotypes.Range(-100, 0),
     wavetrend_oversold_2: Phenotypes.Range(-100, 0),
-    wavetrend_trends: Phenotypes.ListOption([true, false])
-  }
+    wavetrend_trends: Phenotypes.ListOption([true, false]),
+  },
 }
-

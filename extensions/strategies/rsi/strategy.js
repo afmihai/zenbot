@@ -6,18 +6,54 @@ const Asset_currency = require('../../../lib/engine')
 
 module.exports = {
   name: 'rsi',
-  description: 'Attempts to buy low and sell high by tracking RSI high-water readings.',
+  description:
+    'Attempts to buy low and sell high by tracking RSI high-water readings.',
 
   getOptions: function () {
-    this.option('period', 'period length, same as --period_length', String, '2m')
-    this.option('period_length', 'period length, same as --period', String, '2m')
+    this.option(
+      'period',
+      'period length, same as --period_length',
+      String,
+      '2m'
+    )
+    this.option(
+      'period_length',
+      'period length, same as --period',
+      String,
+      '2m'
+    )
     this.option('min_periods', 'min. number of history periods', Number, 52)
     this.option('rsi_periods', 'number of RSI periods', Number, 14)
-    this.option('oversold_rsi', 'buy when RSI reaches or drops below this value', Number, 30)
-    this.option('overbought_rsi', 'sell when RSI reaches or goes above this value', Number, 82)
-    this.option('rsi_recover', 'allow RSI to recover this many points before buying', Number, 3)
-    this.option('rsi_drop', 'allow RSI to fall this many points before selling', Number, 0)
-    this.option('rsi_divisor', 'sell when RSI reaches high-water reading divided by this value', Number, 2)
+    this.option(
+      'oversold_rsi',
+      'buy when RSI reaches or drops below this value',
+      Number,
+      30
+    )
+    this.option(
+      'overbought_rsi',
+      'sell when RSI reaches or goes above this value',
+      Number,
+      82
+    )
+    this.option(
+      'rsi_recover',
+      'allow RSI to recover this many points before buying',
+      Number,
+      3
+    )
+    this.option(
+      'rsi_drop',
+      'allow RSI to fall this many points before selling',
+      Number,
+      0
+    )
+    this.option(
+      'rsi_divisor',
+      'sell when RSI reaches high-water reading divided by this value',
+      Number,
+      2
+    )
   },
 
   calculate: function (s) {
@@ -39,7 +75,11 @@ module.exports = {
           s.rsi_high = s.period.rsi
         }
       }
-      if (s.trend !== 'oversold' && s.trend !== 'long' && s.period.rsi >= s.options.overbought_rsi) {
+      if (
+        s.trend !== 'oversold' &&
+        s.trend !== 'long' &&
+        s.period.rsi >= s.options.overbought_rsi
+      ) {
         s.rsi_high = s.period.rsi
         s.trend = 'long'
       }
@@ -98,7 +138,6 @@ module.exports = {
     overbought_rsi: Phenotypes.Range(1, 100),
     rsi_recover: Phenotypes.Range(1, 100),
     rsi_drop: Phenotypes.Range(0, 100),
-    rsi_divisor: Phenotypes.Range(1, 10)
-  }
+    rsi_divisor: Phenotypes.Range(1, 10),
+  },
 }
-

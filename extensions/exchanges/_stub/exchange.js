@@ -1,7 +1,6 @@
 const superagent = require('superagent')
 
-module.exports = function container (conf) {
-
+module.exports = function container(conf) {
   let theExchange = {}
 
   // TODO: phase out, in favor of calling the method getDirection().
@@ -10,19 +9,19 @@ module.exports = function container (conf) {
 
   // TODO: phase the use of the name out.. define a cleaner interface for exchanges, so its easier to define how to write one.
   theExchange.name = 'stub'
-  theExchange.getName = function() {
+  theExchange.getName = function () {
     return 'stub'
   }
 
-  theExchange.getDirection = function() {
+  theExchange.getDirection = function () {
     return 'backward'
   }
 
-  theExchange.getMakerFee = function() {
+  theExchange.getMakerFee = function () {
     return 0.1
   }
 
-  theExchange.getTakerFee = function() {
+  theExchange.getTakerFee = function () {
     return 0.1
   }
 
@@ -41,12 +40,11 @@ module.exports = function container (conf) {
       const v = JSON.parse(response.text)
 
       const rtn = []
-      v.forEach((vv) => {
+      v.forEach(vv => {
         const obj = JSON.parse(vv)
 
-        obj.id =
-
-          rtn.push(obj) })
+        obj.id = rtn.push(obj)
+      })
 
       cb(null, rtn)
       // TODO: handle the case where there is no server on the other end

@@ -1,8 +1,8 @@
 var IncomingWebhook = require('@slack/client').IncomingWebhook
 
-module.exports = function slack (config) {
+module.exports = function slack(config) {
   var slack = {
-    pushMessage: function(title, message) {
+    pushMessage: function (title, message) {
       var slackWebhook = new IncomingWebhook(config.webhook_url || '', {})
       slackWebhook.send(title + ': ' + message, function (err) {
         if (err) {
@@ -10,7 +10,7 @@ module.exports = function slack (config) {
           console.error(err)
         }
       })
-    }
+    },
   }
   return slack
 }

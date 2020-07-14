@@ -7,17 +7,26 @@ module.exports = {
   description: 'Ichimoku Cloud',
 
   getOptions: function () {
-    this.option('period', 'period length, same as --period_length', String, '4h')
+    this.option(
+      'period',
+      'period length, same as --period_length',
+      String,
+      '4h'
+    )
     this.option('period_length', 'period length', String, '4h')
-    this.option('min_periods', 'min periods (should be >= senkou_b option)', Number, 52)
+    this.option(
+      'min_periods',
+      'min periods (should be >= senkou_b option)',
+      Number,
+      52
+    )
     this.option('tenkan', 'Tenkan (conversion) line', Number, 9)
-    this.option('kijun','Kijun (base) line', Number, 26)
-    this.option('senkou_b','Senkou (leading) span B', Number, 52)
-    this.option('chikou','Chikou (lagging) span)', Number, 26)
+    this.option('kijun', 'Kijun (base) line', Number, 26)
+    this.option('senkou_b', 'Senkou (leading) span B', Number, 52)
+    this.option('chikou', 'Chikou (lagging) span)', Number, 26)
   },
 
-  calculate: function () {
-  },
+  calculate: function () {},
 
   onPeriod: function (s, cb) {
     if (s.lookback[s.options.min_periods]) {
@@ -28,10 +37,10 @@ module.exports = {
       highest(s, 'senkou_high', s.options.senkou_b)
       lowest(s, 'senkou_low', s.options.senkou_b)
 
-      s.period.tenkan = ((s.period.tenkan_high + s.period.tenkan_low) / 2)
-      s.period.kijun = ((s.period.kijun_high + s.period.kijun_low) / 2)
-      s.period.senkou_a = ((s.period.tenkan + s.period.kijun) / 2)
-      s.period.senkou_b = ((s.period.senkou_high + s.period.senkou_low) / 2)
+      s.period.tenkan = (s.period.tenkan_high + s.period.tenkan_low) / 2
+      s.period.kijun = (s.period.kijun_high + s.period.kijun_low) / 2
+      s.period.senkou_a = (s.period.tenkan + s.period.kijun) / 2
+      s.period.senkou_b = (s.period.senkou_high + s.period.senkou_low) / 2
       s.period.chikou = s.lookback[s.options.chikou - 1].close
 
       // The below lines cause the bot to buy when the price is above the kumo cloud and sell when the price is inside
@@ -71,12 +80,12 @@ module.exports = {
     sell_stop_pct: Phenotypes.Range0(1, 50),
     buy_stop_pct: Phenotypes.Range0(1, 50),
     profit_stop_enable_pct: Phenotypes.Range0(1, 20),
-    profit_stop_pct: Phenotypes.Range(1,20),
+    profit_stop_pct: Phenotypes.Range(1, 20),
 
     //Strategy Specific
     tenkan: Phenotypes.RangeFactor(5, 30, 1),
     kijun: Phenotypes.RangeFactor(25, 75, 1),
     senkou_b: Phenotypes.RangeFactor(50, 150, 1),
-    chikou: Phenotypes.RangeFactor(20, 40, 1)
-  }
+    chikou: Phenotypes.RangeFactor(20, 40, 1),
+  },
 }

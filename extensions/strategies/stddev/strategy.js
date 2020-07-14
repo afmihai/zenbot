@@ -6,16 +6,36 @@ const Phenotypes = require('../../../lib/phenotype')
 
 module.exports = {
   name: 'stddev',
-  description: 'Buy when standard deviation and mean increase, sell on mean decrease.',
+  description:
+    'Buy when standard deviation and mean increase, sell on mean decrease.',
   getOptions: function () {
-    this.option('period', 'period length, set poll trades to 100ms, poll order 1000ms. Same as --period_length', String, '100ms')
-    this.option('period_length', 'period length, set poll trades to 100ms, poll order 1000ms. Same as --period', String, '100ms')
-    this.option('trendtrades_1', 'Trades for array 1 to be subtracted stddev and mean from', Number, 5)
-    this.option('trendtrades_2', 'Trades for array 2 to be calculated stddev and mean from', Number, 53)
+    this.option(
+      'period',
+      'period length, set poll trades to 100ms, poll order 1000ms. Same as --period_length',
+      String,
+      '100ms'
+    )
+    this.option(
+      'period_length',
+      'period length, set poll trades to 100ms, poll order 1000ms. Same as --period',
+      String,
+      '100ms'
+    )
+    this.option(
+      'trendtrades_1',
+      'Trades for array 1 to be subtracted stddev and mean from',
+      Number,
+      5
+    )
+    this.option(
+      'trendtrades_2',
+      'Trades for array 2 to be calculated stddev and mean from',
+      Number,
+      53
+    )
     this.option('min_periods', 'min_periods', Number, 1250)
   },
-  calculate: function () {
-  },
+  calculate: function () {},
   onPeriod: function (s, cb) {
     ema(s, 'stddev', s.options.stddev)
     const tl0 = []
@@ -62,7 +82,6 @@ module.exports = {
 
     // -- strategy
     trendtrades_1: Phenotypes.Range(2, 20),
-    trendtrades_2: Phenotypes.Range(4, 100)
-  }
+    trendtrades_2: Phenotypes.Range(4, 100),
+  },
 }
-

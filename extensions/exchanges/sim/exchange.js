@@ -1,16 +1,23 @@
-let path = require('path')
-  , n = require('numbro')
-  , _ = require('lodash')
+let path = require('path'),
+  n = require('numbro'),
+  _ = require('lodash')
 
-module.exports = function sim (conf, s) {
-
+module.exports = function sim(conf, s) {
   let latency = 100 // In milliseconds, enough to be realistic without being disruptive
   let so = s.options
   let exchange_id = so.selector.exchange_id
-  let real_exchange = require(path.resolve(__dirname, `../${exchange_id}/exchange`))(conf)
+  let real_exchange = require(path.resolve(
+    __dirname,
+    `../${exchange_id}/exchange`
+  ))(conf)
 
   var now
-  var balance = { asset: so.asset_capital, currency: so.currency_capital, asset_hold: 0, currency_hold: 0 }
+  var balance = {
+    asset: so.asset_capital,
+    currency: so.currency_capital,
+    asset_hold: 0,
+    currency_hold: 0,
+  }
 
   var last_order_id = 1001
   var orders = {}
@@ -21,11 +28,12 @@ module.exports = function sim (conf, s) {
   function recalcHold() {
     balance.currency_hold = 0
     balance.asset_hold = 0
-    _.each(openOrders, function(order) {
+    _.each(openOrders, function (order) {
       if (order.tradetype === 'buy') {
-        balance.currency_hold += n(order.remaining_size).multiply(n(order.price)).value()
-      }
-      else {
+        balance.currency_hold += n(order.remaining_size)
+          .multiply(n(order.price))
+          .value()
+      } else {
         balance.asset_hold += n(order.remaining_size).value()
       }
     })
@@ -44,14 +52,13 @@ module.exports = function sim (conf, s) {
     getTrades: function (opts, cb) {
       if (so.mode === 'paper') {
         return real_exchange.getTrades(opts, cb)
-      }
-      else {
+      } else {
         return cb(null, [])
       }
     },
 
     getBalance: function (opts, cb) {
-      setTimeout(function() {
+      setTimeout(function () {
         s.sim_asset = balance.asset
         return cb(null, balance)
       }, latency)
@@ -60,19 +67,18 @@ module.exports = function sim (conf, s) {
     getQuote: function (opts, cb) {
       if (so.mode === 'paper') {
         return real_exchange.getQuote(opts, cb)
-      }
-      else {
-        setTimeout(function() {
+      } else {
+        setTimeout(function () {
           return cb(null, {
             bid: s.period.close,
-            ask: s.period.close
+            ask: s.period.close,
           })
         }, latency)
       }
     },
 
     cancelOrder: function (opts, cb) {
-      setTimeout(function() {
+      setTimeout(function () {
         var order_id = '~' + opts.order_id
         var order = orders[order_id]
 
@@ -87,15 +93,22 @@ module.exports = function sim (conf, s) {
     },
 
     buy: function (opts, cb) {
-      setTimeout(function() {
-        if (debug) console.log(`buying ${opts.size * opts.price} vs on hold: ${balance.currency} - ${balance.currency_hold} = ${balance.currency - balance.currency_hold}`)
-        if (opts.size * opts.price > (balance.currency - balance.currency_hold)) {
+      setTimeout(function () {
+        if (debug)
+          console.log(
+            `buying ${opts.size * opts.price} vs on hold: ${
+              balance.currency
+            } - ${balance.currency_hold} = ${
+              balance.currency - balance.currency_hold
+            }`
+          )
+        if (opts.size * opts.price > balance.currency - balance.currency_hold) {
           if (debug) console.log('nope')
-          return cb(null, { status: 'rejected', reject_reason: 'balance'})
+          return cb(null, { status: 'rejected', reject_reason: 'balance' })
         }
 
         var result = {
-          id: last_order_id++
+          id: last_order_id++,
         }
 
         var order = {
@@ -111,7 +124,7 @@ module.exports = function sim (conf, s) {
           tradetype: 'buy',
           orig_time: now,
           time: now,
-          created_at: now
+          created_at: now,
         }
 
         orders['~' + result.id] = order
@@ -122,15 +135,20 @@ module.exports = function sim (conf, s) {
     },
 
     sell: function (opts, cb) {
-      setTimeout(function() {
-        if (debug) console.log(`selling ${opts.size} vs on hold: ${balance.asset} - ${balance.asset_hold} = ${balance.asset - balance.asset_hold}`)
-        if (opts.size > (balance.asset - balance.asset_hold)) {
+      setTimeout(function () {
+        if (debug)
+          console.log(
+            `selling ${opts.size} vs on hold: ${balance.asset} - ${
+              balance.asset_hold
+            } = ${balance.asset - balance.asset_hold}`
+          )
+        if (opts.size > balance.asset - balance.asset_hold) {
           if (debug) console.log('nope')
-          return cb(null, { status: 'rejected', reject_reason: 'balance'})
+          return cb(null, { status: 'rejected', reject_reason: 'balance' })
         }
 
         var result = {
-          id: last_order_id++
+          id: last_order_id++,
         }
 
         var order = {
@@ -146,7 +164,7 @@ module.exports = function sim (conf, s) {
           tradetype: 'sell',
           orig_time: now,
           time: now,
-          created_at: now
+          created_at: now,
         }
         orders['~' + result.id] = order
         openOrders['~' + result.id] = order
@@ -156,13 +174,13 @@ module.exports = function sim (conf, s) {
     },
 
     getOrder: function (opts, cb) {
-      setTimeout(function() {
+      setTimeout(function () {
         var order = orders['~' + opts.order_id]
         cb(null, order)
       }, latency)
     },
 
-    setFees: function(opts) {
+    setFees: function (opts) {
       if (so.mode === 'paper') {
         return real_exchange.setFees(opts)
       }
@@ -170,56 +188,62 @@ module.exports = function sim (conf, s) {
 
     getCursor: real_exchange.getCursor,
 
-    getTime: function() {
+    getTime: function () {
       return now
     },
 
-    processTrade: function(trade) {
+    processTrade: function (trade) {
       var orders_changed = false
-      
+
       now = trade.time
 
-      _.each(openOrders, function(order) {
+      _.each(openOrders, function (order) {
         if (trade.time - order.time < so.order_adjust_time) {
           return // Not time yet
         }
         if (order.tradetype === 'buy' && trade.price <= order.price) {
           processBuy(order, trade)
           orders_changed = true
-        }
-        else if (order.tradetype === 'sell' && trade.price >= order.price) {
+        } else if (order.tradetype === 'sell' && trade.price >= order.price) {
           processSell(order, trade)
           orders_changed = true
         }
       })
 
-      if (orders_changed)
-        recalcHold()
-    }
+      if (orders_changed) recalcHold()
+    },
   }
 
-  function processBuy (buy_order, trade) {
+  function processBuy(buy_order, trade) {
     let fee = 0
     let size = Math.min(buy_order.remaining_size, trade.size)
     let price = buy_order.price
 
     // Add estimated slippage to price
     if (so.order_type === 'maker') {
-      price = n(price).add(n(price).multiply(so.avg_slippage_pct / 100)).format('0.00000000')
+      price = n(price)
+        .add(n(price).multiply(so.avg_slippage_pct / 100))
+        .format('0.00000000')
     }
 
     let total = n(price).multiply(size)
 
     // Compute fees
     if (so.order_type === 'maker' && exchange.makerFee) {
-      fee = n(size).multiply(exchange.makerFee / 100).value()
-    }
-    else if (so.order_type === 'taker' && s.exchange.takerFee) {
-      fee = n(size).multiply(exchange.takerFee / 100).value()
+      fee = n(size)
+        .multiply(exchange.makerFee / 100)
+        .value()
+    } else if (so.order_type === 'taker' && s.exchange.takerFee) {
+      fee = n(size)
+        .multiply(exchange.takerFee / 100)
+        .value()
     }
 
     // Update balance
-    balance.asset = n(balance.asset).add(size).subtract(fee).format('0.00000000')
+    balance.asset = n(balance.asset)
+      .add(size)
+      .subtract(fee)
+      .format('0.00000000')
     balance.currency = n(balance.currency).subtract(total).format('0.00000000')
 
     // Process existing order size changes
@@ -232,35 +256,42 @@ module.exports = function sim (conf, s) {
       order.status = 'done'
       order.done_at = trade.time
       delete openOrders['~' + order.id]
-    }
-    else {
+    } else {
       if (debug) console.log('partial fill buy')
     }
   }
 
-  function processSell (sell_order, trade) {
+  function processSell(sell_order, trade) {
     let fee = 0
     let size = Math.min(sell_order.remaining_size, trade.size)
     let price = sell_order.price
 
     // Add estimated slippage to price
     if (so.order_type === 'maker') {
-      price = n(price).subtract(n(price).multiply(so.avg_slippage_pct / 100)).format('0.00000000')
+      price = n(price)
+        .subtract(n(price).multiply(so.avg_slippage_pct / 100))
+        .format('0.00000000')
     }
 
     let total = n(price).multiply(size)
 
     // Compute fees
     if (so.order_type === 'maker' && exchange.makerFee) {
-      fee = n(total).multiply(exchange.makerFee / 100).value()
-    }
-    else if (so.order_type === 'taker' && exchange.takerFee) {
-      fee = n(total).multiply(exchange.takerFee / 100).value()
+      fee = n(total)
+        .multiply(exchange.makerFee / 100)
+        .value()
+    } else if (so.order_type === 'taker' && exchange.takerFee) {
+      fee = n(total)
+        .multiply(exchange.takerFee / 100)
+        .value()
     }
 
     // Update balance
     balance.asset = n(balance.asset).subtract(size).value()
-    balance.currency = n(balance.currency).add(total).subtract(fee).format('0.00000000')
+    balance.currency = n(balance.currency)
+      .add(total)
+      .subtract(fee)
+      .format('0.00000000')
 
     // Process existing order size changes
     let order = sell_order
@@ -272,8 +303,7 @@ module.exports = function sim (conf, s) {
       order.status = 'done'
       order.done_at = trade.time
       delete openOrders['~' + order.id]
-    }
-    else {
+    } else {
       if (debug) console.log('partial fill sell')
     }
   }

@@ -3,18 +3,20 @@ var bittrex_authed = require('node-bittrex-api'),
   n = require('numbro')
 
 module.exports = function bittrex(conf) {
-  let recoverableErrors = new RegExp(/(ESOCKETTIMEOUT|ESOCKETTIMEDOUT|ETIMEDOUT|ECONNRESET|ECONNREFUSED|ENOTFOUND|Invalid nonce|Rate limit exceeded|URL request error)/)
+  let recoverableErrors = new RegExp(
+    /(ESOCKETTIMEOUT|ESOCKETTIMEDOUT|ETIMEDOUT|ECONNRESET|ECONNREFUSED|ENOTFOUND|Invalid nonce|Rate limit exceeded|URL request error)/
+  )
   let shownWarning = false
   let firstRun = true
   let allowGetMarketCall = true
   let marketRefresh = 15000
 
   bittrex_authed.options({
-    'apikey': conf.bittrex.key.trim(),
-    'apisecret': conf.bittrex.secret.trim(),
-    'stream': false,
-    'cleartext': false,
-    'verbose': false
+    apikey: conf.bittrex.key.trim(),
+    apisecret: conf.bittrex.secret.trim(),
+    stream: false,
+    cleartext: false,
+    verbose: false,
   })
 
   function joinProduct(product_id) {
@@ -50,7 +52,10 @@ module.exports = function bittrex(conf) {
       return retry(command, args, err)
     }
     // specific handlers
-    if ((command == 'getQuote' || command == 'getTrades') && data.result == null ) {
+    if (
+      (command == 'getQuote' || command == 'getTrades') &&
+      data.result == null
+    ) {
       return retry(command, args, data)
     }
     if (!data.success) {
@@ -70,16 +75,16 @@ module.exports = function bittrex(conf) {
     makerFee: 0.25,
     takerFee: 0.25,
 
-    getProducts: function() {
+    getProducts: function () {
       return require('./products.json')
     },
 
     getTrades: function (opts, cb) {
       var func_args = [].slice.call(arguments)
       var args = {
-        market:joinProduct(opts.product_id),
+        market: joinProduct(opts.product_id),
         marketName: joinProduct(opts.product_id),
-        tickInterval: 'oneMin'
+        tickInterval: 'oneMin',
       }
       // accomplish back trades using 2 calls. ticks and getMarket and create a hybrid result.
       var trades = []
@@ -89,18 +94,25 @@ module.exports = function bittrex(conf) {
         return null
       }
       if (firstRun) {
-        bittrex_public.getticks(args,  function(data, err) {
+        bittrex_public.getticks(args, function (data, err) {
           let res = handleErrors('getTrades', err, data, func_args, cb)
           if (!shownWarning) {
-            console.log('Bittrex backfill is indirectly supported through the use of a hybrid system that combines a low resolution')
-            console.log('long term market of about 10 days and a short term high resolution market of the last 1-5 minutes.')
+            console.log(
+              'Bittrex backfill is indirectly supported through the use of a hybrid system that combines a low resolution'
+            )
+            console.log(
+              'long term market of about 10 days and a short term high resolution market of the last 1-5 minutes.'
+            )
             shownWarning = true
           }
           if (res) {
             let lastVal = 0
             for (const key in Object.keys(data.result)) {
               var trade = data.result[key]
-              if (isNaN(opts.from) || new Date(trade.T).getTime() > new Date(opts.from).getTime()) {
+              if (
+                isNaN(opts.from) ||
+                new Date(trade.T).getTime() > new Date(opts.from).getTime()
+              ) {
                 let buySell = 'sell'
                 // todo: unsure about the >. if the price is greater than the last one should this one be a buy or sell. figure it out.
                 if (parseFloat(trade.C) > lastVal) buySell = 'buy'
@@ -110,18 +122,22 @@ module.exports = function bittrex(conf) {
                   size: parseFloat(trade.V),
                   price: parseFloat(trade.C),
                   // selector should get overwritten by backfill, but was a point where it was missing in the backfill function so this was put in so it is never missed
-                  selector: 'bittrex.'+opts.product_id,
-                  side: buySell
+                  selector: 'bittrex.' + opts.product_id,
+                  side: buySell,
                 })
                 lastVal = parseFloat(trade.C)
               }
             }
-            bittrex_public.getmarkethistory(args,  function(data, err) {
+            bittrex_public.getmarkethistory(args, function (data, err) {
               let res2 = handleErrors('getTrades', err, data, func_args, cb)
               if (res2) {
                 for (const key in Object.keys(data.result)) {
                   var trade = data.result[key]
-                  if (isNaN(opts.from) || new Date(trade.TimeStamp).getTime() > new Date(opts.from).getTime()) {
+                  if (
+                    isNaN(opts.from) ||
+                    new Date(trade.TimeStamp).getTime() >
+                      new Date(opts.from).getTime()
+                  ) {
                     trades.push({
                       // trade_id: trade.Id,
                       trade_id: trade.id,
@@ -129,56 +145,67 @@ module.exports = function bittrex(conf) {
                       size: parseFloat(trade.Quantity),
                       price: parseFloat(trade.Price),
                       // selector should get overwritten by backfill, but was a point where it was missing in the backfill function so this was put in so it is never missed
-                      selector: 'bittrex.'+opts.product_id,
-                      side: trade.OrderType || trade.OrderType == 'SELL' ? 'sell': 'buy'
+                      selector: 'bittrex.' + opts.product_id,
+                      side:
+                        trade.OrderType || trade.OrderType == 'SELL'
+                          ? 'sell'
+                          : 'buy',
                       // selector:
                     })
                   }
                 }
                 firstRun = false
                 allowGetMarketCall = false
-                setTimeout(()=>{allowGetMarketCall = true},marketRefresh)
+                setTimeout(() => {
+                  allowGetMarketCall = true
+                }, marketRefresh)
                 // make sure all times come out sorted correctly. there is a chance they can appear in the array out of order otherwise.
                 trades = trades.sort((a, b) => {
                   if (a.time < b.time) return 1
                   if (a.time > b.time) return -1
                   return 0
-                }
-                )
+                })
                 cb(null, trades)
               }
             })
           }
         })
-      }
-      else {
-        bittrex_public.getmarkethistory(args,  function(data, err) {
+      } else {
+        bittrex_public.getmarkethistory(args, function (data, err) {
           let res2 = handleErrors('getTrades', err, data, func_args, cb)
           if (res2) {
             for (const key in Object.keys(data.result)) {
               var trade = data.result[key]
-              if (isNaN(opts.from) || new Date(trade.TimeStamp).getTime() > new Date(opts.from).getTime()) {
+              if (
+                isNaN(opts.from) ||
+                new Date(trade.TimeStamp).getTime() >
+                  new Date(opts.from).getTime()
+              ) {
                 trades.push({
-                // trade_id: trade.Id,
+                  // trade_id: trade.Id,
                   trade_id: new Date(trade.TimeStamp).getTime(),
                   time: new Date(trade.TimeStamp).getTime(),
                   size: parseFloat(trade.Quantity),
                   price: parseFloat(trade.Price),
                   // selector should get overwritten by backfill, but was a point where it was missing in the backfill function so this was put in so it is never missed
-                  selector: 'bittrex.'+opts.product_id,
-                  side: trade.OrderType || trade.OrderType == 'SELL' ? 'sell': 'buy'
+                  selector: 'bittrex.' + opts.product_id,
+                  side:
+                    trade.OrderType || trade.OrderType == 'SELL'
+                      ? 'sell'
+                      : 'buy',
                 })
               }
             }
             allowGetMarketCall = false
-            setTimeout(()=>{allowGetMarketCall = true},marketRefresh)
+            setTimeout(() => {
+              allowGetMarketCall = true
+            }, marketRefresh)
             // Sorting at this point may be redundant.
             trades = trades.sort((a, b) => {
               if (a.time < b.time) return 1
               if (a.time > b.time) return -1
               return 0
-            }
-            )
+            })
             cb(null, trades)
           }
         })
@@ -187,33 +214,36 @@ module.exports = function bittrex(conf) {
 
     getBalance: function (opts, cb) {
       var func_args = [].slice.call(arguments)
-      bittrex_authed.getbalances(function(data,err ) {
+      bittrex_authed.getbalances(function (data, err) {
         let res = handleErrors('getBalance', err, data, func_args, cb)
         var balance = {
           asset: 0,
-          currency: 0
+          currency: 0,
         }
         if (res) {
           for (const key in data.result) {
             var _balance = data.result[key]
             if (opts.last_signal === 'buy') {
               if (_balance['Currency'] === opts.currency.toUpperCase()) {
-                balance.currency = n(_balance.Available).format('0.00000000'),
-                balance.currency_hold = 0
+                ;(balance.currency = n(_balance.Available).format(
+                  '0.00000000'
+                )),
+                  (balance.currency_hold = 0)
               }
               if (_balance['Currency'] === opts.asset.toUpperCase()) {
-                balance.asset = n(_balance.Available).format('0.00000000'),
-                balance.asset_hold = 0
+                ;(balance.asset = n(_balance.Available).format('0.00000000')),
+                  (balance.asset_hold = 0)
               }
-            }
-            else {
+            } else {
               if (_balance['Currency'] === opts.asset.toUpperCase()) {
-                balance.asset = n(_balance.Available).format('0.00000000'),
-                balance.asset_hold = 0
+                ;(balance.asset = n(_balance.Available).format('0.00000000')),
+                  (balance.asset_hold = 0)
               }
               if (_balance['Currency'] === opts.currency.toUpperCase()) {
-                balance.currency = n(_balance.Available).format('0.00000000'),
-                balance.currency_hold = 0
+                ;(balance.currency = n(_balance.Available).format(
+                  '0.00000000'
+                )),
+                  (balance.currency_hold = 0)
               }
             }
           }
@@ -226,11 +256,13 @@ module.exports = function bittrex(conf) {
       var args = {
         market: joinProduct(opts.product_id),
         type: 'both',
-        depth: 10
+        depth: 10,
       }
-      bittrex_public.getorderbook(args, function(data) {
+      bittrex_public.getorderbook(args, function (data) {
         if (typeof data !== 'object') {
-          console.log('Bittrex API (getorderbook) had an abnormal response, quitting.')
+          console.log(
+            'Bittrex API (getorderbook) had an abnormal response, quitting.'
+          )
           return cb(null, [])
         }
         if (!data.success) {
@@ -248,7 +280,7 @@ module.exports = function bittrex(conf) {
           buyOrderRate: data.result.buy[0].Rate,
           buyOrderAmount: data.result.buy[0].Quantity,
           sellOrderRate: data.result.sell[0].Rate,
-          sellOrderAmount: data.result.sell[0].Quantity
+          sellOrderAmount: data.result.sell[0].Quantity,
         })
       })
     },
@@ -258,14 +290,14 @@ module.exports = function bittrex(conf) {
       if (opts.product_id == null) return
       var func_args = [].slice.call(arguments)
       var args = {
-        market: joinProduct(opts.product_id)
+        market: joinProduct(opts.product_id),
       }
-      bittrex_public.getticker(args, function(data, err ) {
+      bittrex_public.getticker(args, function (data, err) {
         let res = handleErrors('getQuote', err, data, func_args, cb)
         if (res)
           cb(null, {
             bid: data.result.Bid,
-            ask: data.result.Ask
+            ask: data.result.Ask,
           })
       })
     },
@@ -273,7 +305,7 @@ module.exports = function bittrex(conf) {
     cancelOrder: function (opts, cb) {
       var func_args = [].slice.call(arguments)
       let args = {
-        uuid: opts.order_id
+        uuid: opts.order_id,
       }
       bittrex_authed.cancel(args, function (data, err) {
         if (err) {
@@ -288,13 +320,13 @@ module.exports = function bittrex(conf) {
       var params = {
         market: joinProduct(opts.product_id),
         quantity: opts.size,
-        rate: opts.price
+        rate: opts.price,
       }
       if (!('order_type' in opts) || !opts.order_type) {
         opts.order_type = 'maker'
       }
-      var fn = function(data,err) {
-        if (err != null ) {
+      var fn = function (data, err) {
+        if (err != null) {
           if (data == null) {
             data = {}
             data.message = err.message
@@ -308,10 +340,10 @@ module.exports = function bittrex(conf) {
           }
         }
         if (err && err.message) {
-          if (err.message =='MIN_TRADE_REQUIREMENT_NOT_MET') {
+          if (err.message == 'MIN_TRADE_REQUIREMENT_NOT_MET') {
             let returnResult = {
-              reject_reason:'balance',
-              status:'rejected'
+              reject_reason: 'balance',
+              status: 'rejected',
             }
             return cb(null, returnResult)
           }
@@ -334,7 +366,7 @@ module.exports = function bittrex(conf) {
           post_only: !!opts.post_only,
           created_at: new Date().getTime(),
           filled_size: '0',
-          ordertype: opts.order_type
+          ordertype: opts.order_type,
         }
         orders['~' + data.result.uuid] = order
         cb(null, order)
@@ -365,14 +397,14 @@ module.exports = function bittrex(conf) {
       exchange.trade('sell', opts, cb)
     },
 
-    getOrder: function(opts, cb) {
+    getOrder: function (opts, cb) {
       var func_args = [].slice.call(arguments)
       var order = orders['~' + opts.order_id]
       if (!order) return cb(new Error('order not found in cache'))
       var params = {
-        uuid: opts.order_id
+        uuid: opts.order_id,
       }
-      bittrex_authed.getorder(params, function(data, err) {
+      bittrex_authed.getorder(params, function (data, err) {
         let res = handleErrors('getOrder', err, data, func_args, cb)
         if (res) {
           var orderData = data.result
@@ -382,7 +414,9 @@ module.exports = function bittrex(conf) {
           if (orderData.QuantityRemaining == 0) {
             order.status = 'done'
             order.done_at = new Date().getTime()
-            order.filled_size = parseFloat(orderData.Quantity) - parseFloat(orderData.QuantityRemaining)
+            order.filled_size =
+              parseFloat(orderData.Quantity) -
+              parseFloat(orderData.QuantityRemaining)
             return cb(null, order)
           }
           cb(null, order)
@@ -392,8 +426,8 @@ module.exports = function bittrex(conf) {
 
     // return the property used for range querying.
     getCursor: function (trade) {
-      return (trade.time || trade)
-    }
+      return trade.time || trade
+    },
   }
   return exchange
 }

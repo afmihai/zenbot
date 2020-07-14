@@ -15,7 +15,6 @@ module.exports = {
     this.option('bricksize', 'Brick Size', Number, 1)
   },
 
-
   calculate: function (s) {
     if (s.lookback[s.options.min_periods]) {
       prclose = Math.round(s.lookback[s.options.min_periods].close)
@@ -25,25 +24,25 @@ module.exports = {
 
   onPeriod: function (s, cb) {
     if (s.lookback[s.options.min_periods]) {
-
       // Sources
       prclose = Math.round(s.lookback[s.options.min_periods].close)
       propen = Math.round(s.lookback[s.options.min_periods].close)
       for (let i = 0; i < s.options.min_periods; i++) {
-        prclose = Math.round(renko_close(s, Math.round(s.lookback[i].close), prclose, propen))
-        propen = Math.round(renko_close(s, Math.round(s.lookback[i].close), prclose, propen))
+        prclose = Math.round(
+          renko_close(s, Math.round(s.lookback[i].close), prclose, propen)
+        )
+        propen = Math.round(
+          renko_close(s, Math.round(s.lookback[i].close), prclose, propen)
+        )
       }
       // Renko
       const rclose = renko_close(s, s.period.close, prclose, propen)
       ropen = renko_open(s, s.period.close, prclose, propen)
       let que
 
-      if (rclose > prclose)
-        que = 1
-      else if (rclose < prclose)
-        que = -1
-      else
-        que = 0
+      if (rclose > prclose) que = 1
+      else if (rclose < prclose) que = -1
+      else que = 0
 
       if (que > 0) {
         if (s.trend != 'up') {
@@ -72,25 +71,25 @@ module.exports = {
       cols.push(z(8, s.trend, ' '))
     }
     return cols
-  }
+  },
 }
 
 function renko_close(s, close, prclose, propen) {
   const type = s.options.bricksize * 2
-  if (close > (prclose + type)) {
+  if (close > prclose + type) {
     if (prclose > propen) {
-      return (prclose + s.options.bricksize)
+      return prclose + s.options.bricksize
     } else {
-      return (prclose + type)
+      return prclose + type
     }
-  } else if (close < (prclose - type)) {
+  } else if (close < prclose - type) {
     if (prclose < propen) {
-      return (prclose - s.options.bricksize)
+      return prclose - s.options.bricksize
     } else {
-      return (prclose - type)
+      return prclose - type
     }
   } else {
-    return (prclose)
+    return prclose
   }
 }
 
@@ -98,17 +97,17 @@ function renko_open(s, close, prclose, propen) {
   const type = s.options.bricksize * 2
   if (close > prclose) {
     if (prclose > propen) {
-      return (prclose)
+      return prclose
     } else {
-      return (prclose + type)
+      return prclose + type
     }
   } else if (close < prclose) {
     if (prclose < propen) {
-      return (prclose)
+      return prclose
     } else {
-      return (prclose - type)
+      return prclose - type
     }
   } else {
-    return (propen)
+    return propen
   }
 }

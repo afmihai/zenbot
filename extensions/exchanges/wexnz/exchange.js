@@ -1,22 +1,22 @@
 //
 // Warning - Some of the functions need testing
 // by someone in posession of a WEXNZ account
-// In particular this is the case for 
+// In particular this is the case for
 // the buy, sell, cancelOrderand getOrderfunctions
 //
 var WEXNZ = require('wexnz')
 
-module.exports = function container (conf) {
+module.exports = function container(conf) {
   var public_client, authed_client
 
-  function publicClient () {
+  function publicClient() {
     if (!public_client) {
       public_client = new WEXNZ()
     }
     return public_client
   }
 
-  function authedClient () {
+  function authedClient() {
     if (!authed_client) {
       if (!conf.wexnz || !conf.wexnz.key || conf.wexnz.key === 'YOUR-API-KEY') {
         throw new Error('please configure your WEX.NZ credentials in conf.js')
@@ -26,11 +26,15 @@ module.exports = function container (conf) {
     return authed_client
   }
 
-  function joinProduct (product_id) {
-    return (product_id.split('-')[0] + '_' + product_id.split('-')[1]).toLowerCase()
+  function joinProduct(product_id) {
+    return (
+      product_id.split('-')[0] +
+      '_' +
+      product_id.split('-')[1]
+    ).toLowerCase()
   }
 
-  function statusErr (err, body) {
+  function statusErr(err, body) {
     if (body === null) {
       return new Error(err)
     } else if (!body.success) {
@@ -45,10 +49,12 @@ module.exports = function container (conf) {
     }
   }
 
-
-  function retry (method, args, err) {
+  function retry(method, args, err) {
     if (method !== 'getTrades') {
-      console.error(('\nWEXNZ API is down! unable to call ' + method + ', retrying in 10s').red)
+      console.error(
+        ('\nWEXNZ API is down! unable to call ' + method + ', retrying in 10s')
+          .red
+      )
       if (err) console.error(err)
       console.error(args.slice(0, -1))
     }
@@ -78,8 +84,7 @@ module.exports = function container (conf) {
       if (opts.from) {
         // move cursor into the future
         args.before = opts.from
-      }
-      else if (opts.to) {
+      } else if (opts.to) {
         // move cursor into the past
         args.after = opts.to
       }
@@ -92,7 +97,7 @@ module.exports = function container (conf) {
             //time: new Date(trade.date).getTime(),
             size: trade.amount,
             price: trade.price,
-            side: trade.trade_type
+            side: trade.trade_type,
           }
         })
         cb(null, trades)
@@ -103,7 +108,7 @@ module.exports = function container (conf) {
       var args = {
         currency: opts.currency.toLowerCase(),
         asset: opts.asset.toLowerCase(),
-        wait: 10
+        wait: 10,
       }
       var func_args = [].slice.call(arguments)
       var client = authedClient()
@@ -113,7 +118,7 @@ module.exports = function container (conf) {
           return retry('getBalance', func_args, err)
         }
         if (body.success) {
-          var balance = {asset: 0, currency: 0}
+          var balance = { asset: 0, currency: 0 }
           var funds = body.return.funds
           balance.currency = funds[args.currency]
           balance.asset = funds[args.asset]
@@ -140,7 +145,12 @@ module.exports = function container (conf) {
       client.cancelOrder(opts.order_id, function (err, resp, body) {
         body = statusErr(err, body)
         // Fix me - Check return codes
-        if (body && (body.message === 'Order already done' || body.message === 'order not found')) return cb()
+        if (
+          body &&
+          (body.message === 'Order already done' ||
+            body.message === 'order not found')
+        )
+          return cb()
         if (err) return retry('cancelOrder', func_args, err)
         cb()
       })
@@ -161,21 +171,24 @@ module.exports = function container (conf) {
       }
       */
       delete opts.order_type
-      client.trade({'pair': pair, 'type': type, 'rate': opts.price, 'amount': opts.size }, function(err, body) {
-        body = statusErr(err, body)
-        // Fix me - Check return codes from API
-        if (body && body.message === 'Insufficient funds') {
-          var order = {
-            status: 'rejected',
-            reject_reason: 'balance'
+      client.trade(
+        { pair: pair, type: type, rate: opts.price, amount: opts.size },
+        function (err, body) {
+          body = statusErr(err, body)
+          // Fix me - Check return codes from API
+          if (body && body.message === 'Insufficient funds') {
+            var order = {
+              status: 'rejected',
+              reject_reason: 'balance',
+            }
+            return cb(null, order)
           }
-          return cb(null, order)
+          if (err) return retry(type, func_args, err)
+          orders['~' + body.id] = body
+          cb(null, body)
+          //else console.log(err)
         }
-        if (err) return retry(type, func_args, err)
-        orders['~' + body.id] = body
-        cb(null,body)
-        //else console.log(err)
-      })
+      )
     },
 
     buy: function (opts, cb) {
@@ -195,9 +208,9 @@ module.exports = function container (conf) {
         count: 1,
         from_id: opts.order_id,
         //end_id: opts.order_id,
-        pair: opts.product_id
+        pair: opts.product_id,
       }
-      client.activeOrders(orderInfo, function (err, resp, body){
+      client.activeOrders(orderInfo, function (err, resp, body) {
         body = statusErr(err, body)
         if (err) return retry('getOrder', func_args, err)
         if (resp.statusCode === 404) {
@@ -216,7 +229,7 @@ module.exports = function container (conf) {
     // return the property used for range querying.
     getCursor: function (trade) {
       return trade.trade_id
-    }
+    },
   }
   return exchange
 }

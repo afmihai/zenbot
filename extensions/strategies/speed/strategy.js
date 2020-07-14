@@ -5,20 +5,44 @@ const Phenotypes = require('../../../lib/phenotype')
 
 module.exports = {
   name: 'speed',
-  description: 'Trade when % change from last two 1m periods is higher than average.',
+  description:
+    'Trade when % change from last two 1m periods is higher than average.',
 
   getOptions: function () {
-    this.option('period', 'period length, same as --period_length', String, '1m')
-    this.option('period_length', 'period length, same as --period', String, '1m')
+    this.option(
+      'period',
+      'period length, same as --period_length',
+      String,
+      '1m'
+    )
+    this.option(
+      'period_length',
+      'period length, same as --period',
+      String,
+      '1m'
+    )
     this.option('min_periods', 'min. number of history periods', Number, 3000)
-    this.option('baseline_periods', 'lookback periods for volatility baseline', Number, 3000)
-    this.option('trigger_factor', 'multiply with volatility baseline EMA to get trigger value', Number, 1.6)
+    this.option(
+      'baseline_periods',
+      'lookback periods for volatility baseline',
+      Number,
+      3000
+    )
+    this.option(
+      'trigger_factor',
+      'multiply with volatility baseline EMA to get trigger value',
+      Number,
+      1.6
+    )
   },
 
   calculate: function (s) {
     if (s.lookback[1]) {
-      s.period.speed = (s.period.close - s.lookback[1].close) / s.lookback[1].close * 100
-      s.period.abs_speed = Math.abs((s.period.close - s.lookback[1].close) / s.lookback[1].close * 100)
+      s.period.speed =
+        ((s.period.close - s.lookback[1].close) / s.lookback[1].close) * 100
+      s.period.abs_speed = Math.abs(
+        ((s.period.close - s.lookback[1].close) / s.lookback[1].close) * 100
+      )
       if (s.lookback[s.options.baseline_periods + 1]) {
         ema(s, 'baseline', s.options.baseline_periods, 'abs_speed')
       }
@@ -33,7 +57,10 @@ module.exports = {
         }
         s.trend = 'up'
         s.signal = !s.acted_on_trend ? 'buy' : null
-      } else if (s.period.speed <= s.period.baseline * s.options.trigger_factor * -1) {
+      } else if (
+        s.period.speed <=
+        s.period.baseline * s.options.trigger_factor * -1
+      ) {
         if (s.trend !== 'down') {
           s.acted_on_trend = false
         }
@@ -46,7 +73,11 @@ module.exports = {
 
   onReport: function (s) {
     const cols = []
-    cols.push(z(8, n(s.period.speed).format('0.0000'), ' ')[s.period.speed >= 0 ? 'green' : 'red'])
+    cols.push(
+      z(8, n(s.period.speed).format('0.0000'), ' ')[
+        s.period.speed >= 0 ? 'green' : 'red'
+      ]
+    )
     if (typeof s.period.baseline === 'number') {
       cols.push(z(8, n(s.period.baseline).format('0.0000'), ' ').grey)
     }
@@ -67,7 +98,6 @@ module.exports = {
 
     // -- strategy
     baseline_periods: Phenotypes.Range(1, 5000),
-    trigger_factor: Phenotypes.RangeFloat(0.1, 10)
-  }
+    trigger_factor: Phenotypes.RangeFloat(0.1, 10),
+  },
 }
-

@@ -43,10 +43,11 @@ let argv = require('yargs').argv
 let z = require('zero-fill')
 let n = require('numbro')
 
-
 let VERSION = 'Zenbot 4 Genetic Backtester v0.2.3'
 
-let PARALLEL_LIMIT = (process.env.PARALLEL_LIMIT && +process.env.PARALLEL_LIMIT) || require('os').cpus().length
+let PARALLEL_LIMIT =
+  (process.env.PARALLEL_LIMIT && +process.env.PARALLEL_LIMIT) ||
+  require('os').cpus().length
 
 let iterationCount = 0
 
@@ -64,11 +65,13 @@ let ignoreLaunchFitness = false
 let minimumTrades = 0
 let fitnessCalcType = 'classic'
 
-let readSimDataFile = (iteration) => {
+let readSimDataFile = iteration => {
   let jsonFileName = `simulations/${population_data}/gen_${generationCount}/sim_${iteration}.json`
 
   if (fs.existsSync(jsonFileName)) {
-    let simData = JSON.parse(fs.readFileSync(jsonFileName, {encoding: 'utf8'}))
+    let simData = JSON.parse(
+      fs.readFileSync(jsonFileName, { encoding: 'utf8' })
+    )
     return simData
   } else {
     return null
@@ -135,15 +138,28 @@ while (fs.existsSync(`simulations/${population_data}/gen_${generationCount}`)) {
 }
 generationCount--
 
-if (generationCount > 0 && !fs.existsSync(`simulations/${population_data}/gen_${generationCount}/results.csv`)) {
+if (
+  generationCount > 0 &&
+  !fs.existsSync(
+    `simulations/${population_data}/gen_${generationCount}/results.csv`
+  )
+) {
   generationCount--
 }
 
 function saveLaunchFiles(saveLauchFile, configuration) {
   if (!saveLauchFile) return
   //let lConfiguration = configuration.replace(' sim ', ' trade ')
-  let lFilenameNix = new String().concat('./gen.', configuration.selector.toLowerCase(), '.sh')
-  let lFinenamewin32 = new String().concat('./gen.', configuration.selector.toLowerCase(), '.bat')
+  let lFilenameNix = new String().concat(
+    './gen.',
+    configuration.selector.toLowerCase(),
+    '.sh'
+  )
+  let lFinenamewin32 = new String().concat(
+    './gen.',
+    configuration.selector.toLowerCase(),
+    '.bat'
+  )
   delete configuration.generateLaunch
   delete configuration.backtester_generation
 
@@ -152,7 +168,10 @@ function saveLaunchFiles(saveLauchFile, configuration) {
 
   // get prior fitness level nix
   if (fs.existsSync(lFilenameNix)) {
-    let lFileCont = fs.readFileSync(lFilenameNix, {encoding: 'utf8', flag: 'r'})
+    let lFileCont = fs.readFileSync(lFilenameNix, {
+      encoding: 'utf8',
+      flag: 'r',
+    })
     let lines = lFileCont.split('\n')
     if (lines.length > 2)
       if (lines[1].includes('fitness=')) {
@@ -163,7 +182,10 @@ function saveLaunchFiles(saveLauchFile, configuration) {
 
   // get prior firness level win32
   if (fs.existsSync(lFinenamewin32)) {
-    let lFileCont = fs.readFileSync(lFinenamewin32, {encoding: 'utf8', flag: 'r'})
+    let lFileCont = fs.readFileSync(lFinenamewin32, {
+      encoding: 'utf8',
+      flag: 'r',
+    })
     let lines = lFileCont.split('\n')
     if (lines.length > 1)
       if (lines[1].includes('fitness=')) {
@@ -173,15 +195,29 @@ function saveLaunchFiles(saveLauchFile, configuration) {
   }
 
   //write Nix Version
-  let lNixContents = '#!/bin/bash\n'.concat('#fitness=', configuration.fitness, '\n',
+  let lNixContents = '#!/bin/bash\n'.concat(
+    '#fitness=',
+    configuration.fitness,
+    '\n',
     'env node zenbot.js trade ',
-    bestOverallCommand, ' $@\n')
+    bestOverallCommand,
+    ' $@\n'
+  )
 
-  let lWin32Contents = '@echo off\n'.concat('rem fitness=', configuration.fitness, '\n',
+  let lWin32Contents = '@echo off\n'.concat(
+    'rem fitness=',
+    configuration.fitness,
+    '\n',
     'node zenbot.js trade ',
-    bestOverallCommand, ' %*\n')
+    bestOverallCommand,
+    ' %*\n'
+  )
 
-  if (((Number(configuration.fitness) > Number(lastFitnessLevel)) || (ignoreLaunchFitness)) && Number(configuration.fitness) > 0.0) {
+  if (
+    (Number(configuration.fitness) > Number(lastFitnessLevel) ||
+      ignoreLaunchFitness) &&
+    Number(configuration.fitness) > 0.0
+  ) {
     fs.writeFileSync(lFilenameNix, lNixContents)
     fs.writeFileSync(lFinenamewin32, lWin32Contents)
     // using the string instead of octet as eslint compaines about an invalid number if the number starts with 0
@@ -200,13 +236,20 @@ function simulateGeneration(generateLaunchFile) {
   generationProcessing = true
 
   // Find the first incomplete generation of this session, where incomplete means no "results" files
-  while (fs.existsSync(`simulations/${population_data}/gen_${generationCount}`)) {
+  while (
+    fs.existsSync(`simulations/${population_data}/gen_${generationCount}`)
+  ) {
     generationCount++
   }
 
   generationCount--
 
-  if (generationCount > 0 && !fs.existsSync(`simulations/${population_data}/gen_${generationCount}/results.csv`)) {
+  if (
+    generationCount > 0 &&
+    !fs.existsSync(
+      `simulations/${population_data}/gen_${generationCount}/results.csv`
+    )
+  ) {
     generationCount--
   }
 
@@ -215,52 +258,62 @@ function simulateGeneration(generateLaunchFile) {
     generationCount = cycleCount
   }
 
-  let ofGenerations = (!isUndefined(runGenerations)) ? `of ${runGenerations}` : ''
+  let ofGenerations = !isUndefined(runGenerations) ? `of ${runGenerations}` : ''
 
-  console.log(`\n\n=== Simulating generation ${++generationCount} ${ofGenerations} ===\n`)
+  console.log(
+    `\n\n=== Simulating generation ${++generationCount} ${ofGenerations} ===\n`
+  )
   Backtester.resetMonitor()
   Backtester.ensureBackfill()
 
   iterationCount = 0
 
-  let tasks = selectedStrategies.map(v => pools[v]['pool'].population().map(phenotype => {
-    return cb => {
-      phenotype.backtester_generation = iterationCount
-      phenotype.exchangeMarketPair = argv.selector
-      Backtester.trackPhenotype(phenotype)
+  let tasks = selectedStrategies
+    .map(v =>
+      pools[v]['pool'].population().map(phenotype => {
+        return cb => {
+          phenotype.backtester_generation = iterationCount
+          phenotype.exchangeMarketPair = argv.selector
+          Backtester.trackPhenotype(phenotype)
 
-      var command
-      let simData = readSimDataFile(iterationCount)
+          var command
+          let simData = readSimDataFile(iterationCount)
 
-      if (simData) {
-        if (simData.result) {
-          // Found a complete and cached sim, don't run anything, just forward the results of it
-          phenotype['sim'] = simData.result
-          iterationCount++
-          return cb(null, simData.result)
-        } else {
-          command = {
-            iteration: iterationCount,
-            commandString: simData.commandString,
-            queryStart: moment(simData.queryStart),
-            queryEnd: moment(simData.queryEnd)
+          if (simData) {
+            if (simData.result) {
+              // Found a complete and cached sim, don't run anything, just forward the results of it
+              phenotype['sim'] = simData.result
+              iterationCount++
+              return cb(null, simData.result)
+            } else {
+              command = {
+                iteration: iterationCount,
+                commandString: simData.commandString,
+                queryStart: moment(simData.queryStart),
+                queryEnd: moment(simData.queryEnd),
+              }
+            }
           }
+
+          if (!command) {
+            // Default flow, build the command to run, and cache it so there's no need to duplicate work when resuming
+            command = Backtester.buildCommand(
+              v,
+              phenotype,
+              `simulations/${population_data}/gen_${generationCount}/sim_${iterationCount}_result.html`
+            )
+            command.iteration = iterationCount
+            writeSimDataFile(iterationCount, JSON.stringify(command))
+          }
+
+          iterationCount++
+          phenotype.minTrades = minimumTrades
+          phenotype.fitnessCalcType = fitnessCalcType
+          Backtester.runCommand(v, phenotype, command, cb)
         }
-      }
-
-      if (!command) {
-        // Default flow, build the command to run, and cache it so there's no need to duplicate work when resuming
-        command = Backtester.buildCommand(v, phenotype, `simulations/${population_data}/gen_${generationCount}/sim_${iterationCount}_result.html`)
-        command.iteration = iterationCount
-        writeSimDataFile(iterationCount, JSON.stringify(command))
-      }
-
-      iterationCount++
-      phenotype.minTrades = minimumTrades
-      phenotype.fitnessCalcType = fitnessCalcType
-      Backtester.runCommand(v, phenotype, command, cb)
-    }
-  })).reduce((a, b) => a.concat(b))
+      })
+    )
+    .reduce((a, b) => a.concat(b))
 
   Backtester.startMonitor()
 
@@ -271,72 +324,78 @@ function simulateGeneration(generateLaunchFile) {
       return !!r
     })
 
-    results.sort((a, b) => (Number(a.fitness) < Number(b.fitness)) ? 1 : ((Number(b.fitness) < Number(a.fitness)) ? -1 : 0))
+    results.sort((a, b) =>
+      Number(a.fitness) < Number(b.fitness)
+        ? 1
+        : Number(b.fitness) < Number(a.fitness)
+        ? -1
+        : 0
+    )
 
     const fields = [
       {
-        'label': 'Selector',
-        'value': 'selector'
+        label: 'Selector',
+        value: 'selector',
       },
       {
-        'label': 'Fitness',
-        'value': 'fitness'
+        label: 'Fitness',
+        value: 'fitness',
       },
       {
-        'label': 'VS Buy Hold (%)',
-        'value': 'vsBuyHold'
+        label: 'VS Buy Hold (%)',
+        value: 'vsBuyHold',
       },
       {
-        'label': 'Win/Loss Ratio',
-        'value': 'wlRatio'
+        label: 'Win/Loss Ratio',
+        value: 'wlRatio',
       },
       {
-        'label': '# Trades/Day',
-        'value': 'frequency'
+        label: '# Trades/Day',
+        value: 'frequency',
       },
       {
-        'label': 'Strategy',
-        'value': 'strategy'
+        label: 'Strategy',
+        value: 'strategy',
       },
       {
-        'label': 'Order Type',
-        'value': 'order_type'
+        label: 'Order Type',
+        value: 'order_type',
       },
       {
-        'label': 'Ending Balance ($)',
-        'value': 'endBalance'
+        label: 'Ending Balance ($)',
+        value: 'endBalance',
       },
       {
-        'label': 'Buy Hold ($)',
-        'value': 'buyHold'
+        label: 'Buy Hold ($)',
+        value: 'buyHold',
       },
       {
-        'label': '# Wins',
-        'value': 'wins'
+        label: '# Wins',
+        value: 'wins',
       },
       {
-        'label': '# Losses',
-        'value': 'losses'
+        label: '# Losses',
+        value: 'losses',
       },
       {
-        'label': 'Period',
-        'value': 'period_length'
+        label: 'Period',
+        value: 'period_length',
       },
       {
-        'label': 'Min Periods',
-        'value': 'min_periods'
+        label: 'Min Periods',
+        value: 'min_periods',
       },
       {
-        'label': '# Days',
-        'value': 'days'
+        label: '# Days',
+        value: 'days',
       },
       {
-        'label': 'Full Parameters',
-        'value': 'params'
-      }
+        label: 'Full Parameters',
+        value: 'params',
+      },
     ]
 
-    let json2csvParser = new Json2csvParser({fields})
+    let json2csvParser = new Json2csvParser({ fields })
     let dataCSV = json2csvParser.parse(results)
     let csvFileName = `simulations/${population_data}/gen_${generationCount}/results.csv`
     let poolData = {}
@@ -350,19 +409,43 @@ function simulateGeneration(generateLaunchFile) {
       saveGenerationData(csvFileName, jsonFileName, dataCSV, dataJSON)
 
     //Display best of the generation
-    console.log('\n\nGeneration\'s Best Results')
+    console.log("\n\nGeneration's Best Results")
     let bestOverallResult = []
     let prefix = './zenbot.sh sim '
-    selectedStrategies.forEach((v) => {
+    selectedStrategies.forEach(v => {
       let best = pools[v]['pool'].best()
       let bestCommand
 
       if (best.sim) {
-        console.log(`(${best.sim.strategy}) Sim Fitness ${best.sim.fitness}, VS Buy and Hold: ${z(5, (n(best.sim.vsBuyHold).format('0.0') + '%'), ' ').yellow} BuyAndHold Balance: ${z(5, (n(best.sim.buyHold).format('0.000000')), ' ').yellow}  End Balance: ${z(5, (n(best.sim.endBalance).format('0.000000')), ' ').yellow}, Wins/Losses ${best.sim.wins}/${best.sim.losses}, ROI ${z(5, (n(best.sim.roi).format('0.000000')), ' ').yellow}.`)
+        console.log(
+          `(${best.sim.strategy}) Sim Fitness ${
+            best.sim.fitness
+          }, VS Buy and Hold: ${
+            z(5, n(best.sim.vsBuyHold).format('0.0') + '%', ' ').yellow
+          } BuyAndHold Balance: ${
+            z(5, n(best.sim.buyHold).format('0.000000'), ' ').yellow
+          }  End Balance: ${
+            z(5, n(best.sim.endBalance).format('0.000000'), ' ').yellow
+          }, Wins/Losses ${best.sim.wins}/${best.sim.losses}, ROI ${
+            z(5, n(best.sim.roi).format('0.000000'), ' ').yellow
+          }.`
+        )
         bestCommand = generateCommandParams(best.sim)
         bestOverallResult.push(best.sim)
       } else {
-        console.log(`(${results[0].strategy}) Result Fitness ${results[0].fitness}, VS Buy and Hold: ${z(5, (n(results[0].vsBuyHold).format('0.0') + '%'), ' ').yellow} BuyAndHold Balance: ${z(5, (n(results[0].buyHold).format('0.000000')), ' ').yellow}  End Balance: ${z(5, (n(results[0].endBalance).format('0.000000')), ' ').yellow}, Wins/Losses ${results[0].wins}/${results[0].losses}, ROI ${z(5, (n(results.roi).format('0.000000')), ' ').yellow}.`)
+        console.log(
+          `(${results[0].strategy}) Result Fitness ${
+            results[0].fitness
+          }, VS Buy and Hold: ${
+            z(5, n(results[0].vsBuyHold).format('0.0') + '%', ' ').yellow
+          } BuyAndHold Balance: ${
+            z(5, n(results[0].buyHold).format('0.000000'), ' ').yellow
+          }  End Balance: ${
+            z(5, n(results[0].endBalance).format('0.000000'), ' ').yellow
+          }, Wins/Losses ${results[0].wins}/${results[0].losses}, ROI ${
+            z(5, n(results.roi).format('0.000000'), ' ').yellow
+          }.`
+        )
         bestCommand = generateCommandParams(results[0])
         bestOverallResult.push(results[0])
       }
@@ -370,16 +453,27 @@ function simulateGeneration(generateLaunchFile) {
       // prepare command snippet from top result for this strat
       if (bestCommand != '') {
         bestCommand = prefix + bestCommand
-        bestCommand = bestCommand + ' --asset_capital=' + argv.asset_capital + ' --currency_capital=' + argv.currency_capital
+        bestCommand =
+          bestCommand +
+          ' --asset_capital=' +
+          argv.asset_capital +
+          ' --currency_capital=' +
+          argv.currency_capital
         console.log(bestCommand + '\n')
       }
     })
 
     bestOverallResult.sort((a, b) =>
-      (isUndefined(a.fitness)) ? 1 :
-        (isUndefined(b.fitness)) ? 0 :
-          (a.fitness < b.fitness) ? 1 :
-            (b.fitness < a.fitness) ? -1 : 0)
+      isUndefined(a.fitness)
+        ? 1
+        : isUndefined(b.fitness)
+        ? 0
+        : a.fitness < b.fitness
+        ? 1
+        : b.fitness < a.fitness
+        ? -1
+        : 0
+    )
 
     // let bestOverallCommand = generateCommandParams(bestOverallResult[0])
     // bestOverallCommand = prefix + bestOverallCommand
@@ -388,10 +482,26 @@ function simulateGeneration(generateLaunchFile) {
     saveLaunchFiles(generateLaunchFile, bestOverallResult[0])
 
     if (selectedStrategies.length > 1) {
-      console.log(`(${bestOverallResult[0].strategy}) Best Overall Fitness ${bestOverallResult[0].fitness}, VS Buy and Hold: ${z(5, (n(bestOverallResult[0].vsBuyHold).format('0.00') + '%'), ' ').yellow} BuyAndHold Balance: ${z(5, (n(bestOverallResult[0].buyHold).format('0.000000')), ' ').yellow}  End Balance: ${z(5, (n(bestOverallResult[0].endBalance).format('0.000000')), ' ').yellow}, Wins/Losses ${bestOverallResult[0].wins}/${bestOverallResult[0].losses}, ROI ${z(5, (n(bestOverallResult[0].roi).format('0.000000')), ' ').yellow}.`)
+      console.log(
+        `(${bestOverallResult[0].strategy}) Best Overall Fitness ${
+          bestOverallResult[0].fitness
+        }, VS Buy and Hold: ${
+          z(5, n(bestOverallResult[0].vsBuyHold).format('0.00') + '%', ' ')
+            .yellow
+        } BuyAndHold Balance: ${
+          z(5, n(bestOverallResult[0].buyHold).format('0.000000'), ' ').yellow
+        }  End Balance: ${
+          z(5, n(bestOverallResult[0].endBalance).format('0.000000'), ' ')
+            .yellow
+        }, Wins/Losses ${bestOverallResult[0].wins}/${
+          bestOverallResult[0].losses
+        }, ROI ${
+          z(5, n(bestOverallResult[0].roi).format('0.000000'), ' ').yellow
+        }.`
+      )
     }
 
-    selectedStrategies.forEach((v) => {
+    selectedStrategies.forEach(v => {
       pools[v]['pool'] = pools[v]['pool'].evolve()
     })
 
@@ -415,22 +525,42 @@ if (!simArgs.filename) {
   simArgs.filename = 'none'
 }
 
-if (simArgs.help || !(simArgs.use_strategies)) {
-  console.log('--use_strategies=<stragegy_name>,<stragegy_name>,<stragegy_name>   Min one strategy, can include more than one')
-  console.log('--population_data=<filename>    filename used for continueing backtesting from previous run')
-  console.log('--generateLaunch=<true>|<false>        will generate .sh and .bat file using the best generation discovered')
+if (simArgs.help || !simArgs.use_strategies) {
+  console.log(
+    '--use_strategies=<stragegy_name>,<stragegy_name>,<stragegy_name>   Min one strategy, can include more than one'
+  )
+  console.log(
+    '--population_data=<filename>    filename used for continueing backtesting from previous run'
+  )
+  console.log(
+    '--generateLaunch=<true>|<false>        will generate .sh and .bat file using the best generation discovered'
+  )
   console.log('--population=<int>    populate per strategy')
-  console.log('--maxCores=<int>    maximum processes to execute at a time default is # of cpu cores in system')
+  console.log(
+    '--maxCores=<int>    maximum processes to execute at a time default is # of cpu cores in system'
+  )
   console.log('--selector=<exchange.marketPair>  ')
   console.log('--asset_capital=<float>    amount coin to start sim with ')
-  console.log('--currency_capital=<float>  amount of capital/base currency to start sim with')
+  console.log(
+    '--currency_capital=<float>  amount of capital/base currency to start sim with'
+  )
   console.log('--days=<int>  amount of days to use when backfilling')
   console.log('--noStatSave=<true>|<false>')
-  console.log('--runGenerations=<int>  if used run this number of generations, will be shown 1 less due to generations starts at 0')
-  console.log('--minTrades=<int>  Minimum wins before generation is considured fit to evolve')
-  console.log('--fitnessCalcType=<wl / profit / classic / profitwl> Default: Classic.')
-  console.log('                  wl will score the highes for wins and losses, profit does not care about wins and losses only the higest end balance,')
-  console.log('                  classic uses original claculation / profitwl tries to get the highest profit using the lowest win/loss ratio')
+  console.log(
+    '--runGenerations=<int>  if used run this number of generations, will be shown 1 less due to generations starts at 0'
+  )
+  console.log(
+    '--minTrades=<int>  Minimum wins before generation is considured fit to evolve'
+  )
+  console.log(
+    '--fitnessCalcType=<wl / profit / classic / profitwl> Default: Classic.'
+  )
+  console.log(
+    '                  wl will score the highes for wins and losses, profit does not care about wins and losses only the higest end balance,'
+  )
+  console.log(
+    '                  classic uses original claculation / profitwl tries to get the highest profit using the lowest win/loss ratio'
+  )
   process.exit(0)
 }
 
@@ -438,7 +568,7 @@ delete simArgs.use_strategies
 delete simArgs.population_data
 delete simArgs.population
 delete simArgs['$0'] // This comes in to argv all by itself
-delete simArgs['_']  // This comes in to argv all by itself
+delete simArgs['_'] // This comes in to argv all by itself
 
 if (simArgs.maxCores) {
   if (simArgs.maxCores < 1) PARALLEL_LIMIT = 1
@@ -446,15 +576,11 @@ if (simArgs.maxCores) {
 }
 fitnessCalcType = 'classic'
 if (simArgs.fitnessCalcType) {
-
   if (simArgs.fitnessCalcType == 'classic') fitnessCalcType = 'classic'
   if (simArgs.fitnessCalcType == 'wl') fitnessCalcType = 'wl'
   if (simArgs.fitnessCalcType == 'profit') fitnessCalcType = 'profit'
   if (simArgs.fitnessCalcType == 'profitwl') fitnessCalcType = 'profitwl'
-
-
 }
-
 
 if (!isUndefined(simArgs.runGenerations)) {
   if (simArgs.runGenerations) {
@@ -462,28 +588,38 @@ if (!isUndefined(simArgs.runGenerations)) {
   }
 }
 
-let generateLaunchFile = (simArgs.generateLaunch) ? true : false
-noStatSave = (simArgs.noStatSave) ? true : false
+let generateLaunchFile = simArgs.generateLaunch ? true : false
+noStatSave = simArgs.noStatSave ? true : false
 
-let strategyName = (argv.use_strategies) ? argv.use_strategies : 'all'
-populationSize = (argv.population) ? argv.population : 100
-minimumTrades = (argv.minTrades) ? argv.minTrades : 0
+let strategyName = argv.use_strategies ? argv.use_strategies : 'all'
+populationSize = argv.population ? argv.population : 100
+minimumTrades = argv.minTrades ? argv.minTrades : 0
 //floatScanWindow = (argv.floatScanWindow) ? argv.floatScanWindow : false
-ignoreLaunchFitness = (argv.ignoreLaunchFitness) ? argv.ignoreLaunchFitness : false
+ignoreLaunchFitness = argv.ignoreLaunchFitness
+  ? argv.ignoreLaunchFitness
+  : false
 
-population_data = argv.population_data || `backtest.${simArgs.selector.toLowerCase()}.${moment().format('YYYYMMDDHHmmss')}`
+population_data =
+  argv.population_data ||
+  `backtest.${simArgs.selector.toLowerCase()}.${moment().format(
+    'YYYYMMDDHHmmss'
+  )}`
 
 console.log(`Backtesting strategy ${strategyName} ...\n`)
 console.log(`Creating population of ${populationSize} ...\n`)
 
-selectedStrategies = (strategyName === 'all') ? allStrategyNames() : strategyName.split(',')
+selectedStrategies =
+  strategyName === 'all' ? allStrategyNames() : strategyName.split(',')
 
 Backtester.deLint()
 
 for (var i = 0; i < selectedStrategies.length; i++) {
   let v = selectedStrategies[i]
-  let strategyPool = pools[v] = {}
-  let strategyData = require(path.resolve(__dirname, `../../extensions/strategies/${v}/strategy`))
+  let strategyPool = (pools[v] = {})
+  let strategyData = require(path.resolve(
+    __dirname,
+    `../../extensions/strategies/${v}/strategy`
+  ))
   let strategyPhenotypes = strategyData.phenotypes
 
   if (strategyPhenotypes) {
@@ -506,7 +642,7 @@ for (var i = 0; i < selectedStrategies.length; i++) {
       fitnessFunction: Phenotypes.fitness,
       doesABeatBFunction: Phenotypes.competition,
       population: population,
-      populationSize: populationSize
+      populationSize: populationSize,
     }
 
     strategyPool['pool'] = GeneticAlgorithmCtor(strategyPool.config)
@@ -528,7 +664,11 @@ for (var i = 0; i < selectedStrategies.length; i++) {
 
 // BEGIN - exitHandler
 var exitHandler = function (options, exitErr) {
-  if (generationCount && options.cleanup && (isUndefined(runGenerations) || runGenerations !== generationCount)) {
+  if (
+    generationCount &&
+    options.cleanup &&
+    (isUndefined(runGenerations) || runGenerations !== generationCount)
+  ) {
     console.log('Resume this backtest later with:')
     var darwin_args = process.argv.slice(2, process.argv.length)
 
@@ -544,31 +684,33 @@ var exitHandler = function (options, exitErr) {
       darwin_args.push(popDataArg)
     }
 
-    console.log(`./scripts/genetic_backtester/darwin.js ${darwin_args.join(' ')}`)
+    console.log(
+      `./scripts/genetic_backtester/darwin.js ${darwin_args.join(' ')}`
+    )
   }
 
   if (exitErr) console.log(exitErr.stack || exitErr)
   if (options.exit) process.exit()
 }
 
-process.on('exit', exitHandler.bind(null, {cleanup: true}))
+process.on('exit', exitHandler.bind(null, { cleanup: true }))
 
 //catches ctrl+c event
-process.on('SIGINT', exitHandler.bind(null, {exit: true}))
+process.on('SIGINT', exitHandler.bind(null, { exit: true }))
 
 // catches "kill pid" (for example: nodemon restart)
-process.on('SIGUSR1', exitHandler.bind(null, {exit: true}))
-process.on('SIGUSR2', exitHandler.bind(null, {exit: true}))
+process.on('SIGUSR1', exitHandler.bind(null, { exit: true }))
+process.on('SIGUSR2', exitHandler.bind(null, { exit: true }))
 
 //catches uncaught exceptions
-process.on('uncaughtException', exitHandler.bind(null, {exit: true}))
+process.on('uncaughtException', exitHandler.bind(null, { exit: true }))
 // END - exitHandler
 
 Backtester.init({
   simArgs: simArgs,
   simTotalCount: populationSize * selectedStrategies.length,
   parallelLimit: PARALLEL_LIMIT,
-  writeFile: writeSimDataFile
+  writeFile: writeSimDataFile,
 })
 setInterval(() => {
   if (generationProcessing == false) simulateGeneration(generateLaunchFile)
