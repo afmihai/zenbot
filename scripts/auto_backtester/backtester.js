@@ -44,21 +44,22 @@
  * So you can see our vsBuyHold has gone from -0.13% to 0.30%, an improvement!
 */
 
-let Phenotypes = require('../../lib/phenotype')
-  , Backtester = require('../../lib/backtester')
-  , argv = require('yargs').argv
-  , moment = require('moment')
-  , path = require('path')
-  , parallel = require('run-parallel-limit')
-  , colors = require('colors')
-  , z = require('zero-fill')
-  , n = require('numbro')
-  , _ = require('underscore')
-  , json2csv = require('json2csv')
+const Phenotypes = require('../../lib/phenotype')
+const Backtester = require('../../lib/backtester')
+const argv = require('yargs').argv
+const moment = require('moment')
+const path = require('path')
+const parallel = require('run-parallel-limit')
+// eslint-disable-next-line no-unused-vars
+const colors = require('colors')
+const z = require('zero-fill')
+const n = require('numbro')
+const _ = require('underscore')
+const json2csv = require('json2csv')
 
 let PARALLEL_LIMIT = (process.env.PARALLEL_LIMIT && +process.env.PARALLEL_LIMIT) || require('os').cpus().length
 
-simArgs = Object.assign({}, argv)
+const simArgs = Object.assign({}, argv)
 if (simArgs.period)
   simArgs.period_length = simArgs.period
 delete simArgs.period
@@ -92,7 +93,7 @@ if (simArgs.help || !simArgs.selector || !simArgs.step_size || simArgs.step_size
   process.exit(0)
 }
 
-var timeCount = 0
+let timeCount = 0
 if (simArgs.days) timeCount++
 if (simArgs.start) timeCount++
 if (simArgs.end) timeCount++
@@ -102,7 +103,7 @@ if (timeCount < 2) {
   process.exit(1)
 }
 
-function runAutoBacktester () {
+function runAutoBacktester() {
 
   let strategyName = simArgs.strategy
   let strategyData = require(path.resolve(__dirname, `../../extensions/strategies/${strategyName}/strategy`))
@@ -112,13 +113,12 @@ function runAutoBacktester () {
     process.exit(1)
   }
 
-  var pData = Object.assign({}, strategyPhenotypes)
-  var unsetKeys = []
+  const pData = Object.assign({}, strategyPhenotypes)
+  const unsetKeys = []
   Object.keys(strategyPhenotypes).forEach(function (key) {
     if (key in simArgs) {
       pData[key] = simArgs[key]
-    }
-    else {
+    } else {
       unsetKeys.push(key)
     }
   })
@@ -126,8 +126,7 @@ function runAutoBacktester () {
   if (unsetKeys.length > 2) {
     console.log(`You omitted values for keys: ${unsetKeys.join(', ')}. You can have at most 2 unset keys`)
     process.exit(1)
-  }
-  else if (unsetKeys.length <= 0) {
+  } else if (unsetKeys.length <= 0) {
     console.log(`You must omit at least one key in ${strategyName}'s phenotype for backtesting`)
     process.exit(1)
   }
@@ -143,11 +142,11 @@ function runAutoBacktester () {
   let phenotypes = []
 
   let step_size_1 = step_size
-    , step_size_2 = step_size
-    , key1 = unsetKeys[0]
-    , key2 = unsetKeys[1]
-    , p1 = strategyPhenotypes[key1]
-    , p2 = strategyPhenotypes[key2]
+  let step_size_2 = step_size
+  const key1 = unsetKeys[0]
+  const key2 = unsetKeys[1]
+  const p1 = strategyPhenotypes[key1]
+  const p2 = strategyPhenotypes[key2]
 
   // If you're iterating through a set, do the whole set regardless of step_size
   if (p1 && p1.type === 'listOption')
@@ -156,34 +155,34 @@ function runAutoBacktester () {
     step_size_2 = p2.options.length
 
   // If we have 2 keys, build all combinations of both, otherwise just loop through the 1 key values
-  if (unsetKeys.length == 2) {
+  let phenotype
+  if (unsetKeys.length === 2) {
     for (let i = 0; i < step_size_1; i++) {
       for (let j = 0; j < step_size_2; j++) {
-        var phenotype = Object.assign({}, pData)
+        phenotype = Object.assign({}, pData)
         phenotype[key1] = Phenotypes.range(p1, i, step_size_1)
         phenotype[key2] = Phenotypes.range(p2, j, step_size_2)
         phenotypes.push(phenotype)
       }
     }
-  }
-  else {
+  } else {
     for (let i = 0; i < step_size_1; i++) {
-      var phenotype = Object.assign({}, pData)
+      phenotype = Object.assign({}, pData)
       phenotype[key1] = Phenotypes.range(p1, i, step_size_1)
       phenotypes.push(phenotype)
     }
   }
 
   if (debug)
-    console.log(`Running options:`)
+    console.log('Running options:')
 
   // Remove duplicates in case something is screwy in combination with step_size higher than the number of options.
   // No sense in re-running the same thing multiple times
-  phenotypes = _.uniq(phenotypes, function(p, key, a) {
+  phenotypes = _.uniq(phenotypes, function (p) {  // (p, key, a)
     if (debug)
       console.log(`${key1}: ${p[key1]}, ${key2}: ${p[key2]}`) // print all combinations of options
-    return JSON.stringify(p);
-  });
+    return JSON.stringify(p)
+  })
 
   Backtester.init({
     simArgs: simArgs,
@@ -199,7 +198,7 @@ function runAutoBacktester () {
       phenotype.selector = argv.selector
       Backtester.trackPhenotype(phenotype)
 
-      var command = Backtester.buildCommand(strategyName, phenotype, `simulations/${population_data}/sim_${iterationCount}_result.html`)
+      const command = Backtester.buildCommand(strategyName, phenotype, `simulations/${population_data}/sim_${iterationCount}_result.html`)
       command.iteration = iterationCount
       writeSimDataFile(iterationCount, JSON.stringify(command))
 
@@ -213,7 +212,7 @@ function runAutoBacktester () {
   parallel(tasks, PARALLEL_LIMIT, (err, results) => {
     Backtester.stopMonitor(`Auto Backtest of ${unsetKeys.join(' and ').blue}`)
 
-    results = results.filter(function(r) {
+    results = results.filter(function (r) {
       return !!r
     })
 
@@ -222,12 +221,12 @@ function runAutoBacktester () {
 
     // console.log(`results(${results.length}): ${JSON.stringify(results)}`)
 
-    results.forEach(function(result) {
-      let it = result.params.match(/backtester_generation\":(\d+),/)
+    results.forEach(function (result) {
+      let it = result.params.match(/backtester_generation":(\d+),/)
       let phenotype = phenotypes[parseInt(it[1], 10)]
       result.commandString = phenotype.command.commandString
 
-      unsetKeys.forEach(function(key) {
+      unsetKeys.forEach(function (key) {
         result[key] = phenotype[key]
       })
       // console.log(`it: ${JSON.stringify(it)}`)
@@ -256,12 +255,12 @@ function runAutoBacktester () {
 
     // Display best of the generation
     let best_string = []
-    unsetKeys.forEach(function(key) {
+    unsetKeys.forEach(function (key) {
       best_string.push(`${key}=${best[key]}`)
     })
     console.log(`\n\nBest Result had ${best_string.join(' and ').green}`)
 
-    console.log(`(${best.strategy}) Result Fitness ${best.fitness}, VS Buy and Hold: ${z(5, (n(best.vsBuyHold).format('0.0') + '%'), ' ').yellow} BuyAndHold Balance: ${z(5, (n(best.buyHold).format('0.000000')), ' ').yellow}  End Balance: ${z(5, (n(best.endBalance).format('0.000000')), ' ').yellow}, Wins/Losses ${best.wins}/${best.losses}, ROI ${z(5, (n(results.roi).format('0.000000') ), ' ').yellow}.`)
+    console.log(`(${best.strategy}) Result Fitness ${best.fitness}, VS Buy and Hold: ${z(5, (n(best.vsBuyHold).format('0.0') + '%'), ' ').yellow} BuyAndHold Balance: ${z(5, (n(best.buyHold).format('0.000000')), ' ').yellow}  End Balance: ${z(5, (n(best.endBalance).format('0.000000')), ' ').yellow}, Wins/Losses ${best.wins}/${best.losses}, ROI ${z(5, (n(results.roi).format('0.000000')), ' ').yellow}.`)
     console.log(best.commandString + '\n')
   })
 

@@ -68,10 +68,9 @@ let readSimDataFile = (iteration) => {
   let jsonFileName = `simulations/${population_data}/gen_${generationCount}/sim_${iteration}.json`
 
   if (fs.existsSync(jsonFileName)) {
-    let simData = JSON.parse(fs.readFileSync(jsonFileName, { encoding: 'utf8' }))
+    let simData = JSON.parse(fs.readFileSync(jsonFileName, {encoding: 'utf8'}))
     return simData
-  }
-  else {
+  } else {
     return null
   }
 }
@@ -108,9 +107,7 @@ function generateCommandParams(input) {
       // selector should be at start before keys
       if (key == 'selector') {
         result = input[key] + result
-      }
-
-      else result += ' --' + key + '=' + input[key]
+      } else result += ' --' + key + '=' + input[key]
     }
   }
   return result
@@ -120,16 +117,14 @@ function saveGenerationData(csvFileName, jsonFileName, dataCSV, dataJSON) {
   try {
     fs.writeFileSync(csvFileName, dataCSV)
     console.log('> Finished writing generation csv to ' + csvFileName)
-  }
-  catch (err) {
+  } catch (err) {
     throw err
   }
 
   try {
     fs.writeFileSync(jsonFileName, dataJSON)
     console.log('> Finished writing generation json to ' + jsonFileName)
-  }
-  catch (err) {
+  } catch (err) {
     throw err
   }
 }
@@ -157,7 +152,7 @@ function saveLaunchFiles(saveLauchFile, configuration) {
 
   // get prior fitness level nix
   if (fs.existsSync(lFilenameNix)) {
-    let lFileCont = fs.readFileSync(lFilenameNix, { encoding: 'utf8', flag: 'r' })
+    let lFileCont = fs.readFileSync(lFilenameNix, {encoding: 'utf8', flag: 'r'})
     let lines = lFileCont.split('\n')
     if (lines.length > 2)
       if (lines[1].includes('fitness=')) {
@@ -168,7 +163,7 @@ function saveLaunchFiles(saveLauchFile, configuration) {
 
   // get prior firness level win32
   if (fs.existsSync(lFinenamewin32)) {
-    let lFileCont = fs.readFileSync(lFinenamewin32, { encoding: 'utf8', flag: 'r' })
+    let lFileCont = fs.readFileSync(lFinenamewin32, {encoding: 'utf8', flag: 'r'})
     let lines = lFileCont.split('\n')
     if (lines.length > 1)
       if (lines[1].includes('fitness=')) {
@@ -243,8 +238,7 @@ function simulateGeneration(generateLaunchFile) {
           phenotype['sim'] = simData.result
           iterationCount++
           return cb(null, simData.result)
-        }
-        else {
+        } else {
           command = {
             iteration: iterationCount,
             commandString: simData.commandString,
@@ -281,68 +275,68 @@ function simulateGeneration(generateLaunchFile) {
 
     const fields = [
       {
-        "label": "Selector",
-        "value": "selector"
+        'label': 'Selector',
+        'value': 'selector'
       },
       {
-        "label": "Fitness",
-        "value": "fitness"
+        'label': 'Fitness',
+        'value': 'fitness'
       },
       {
-        "label": "VS Buy Hold (%)",
-        "value": "vsBuyHold"
+        'label': 'VS Buy Hold (%)',
+        'value': 'vsBuyHold'
       },
       {
-        "label": "Win/Loss Ratio",
-        "value": "wlRatio"
+        'label': 'Win/Loss Ratio',
+        'value': 'wlRatio'
       },
       {
-        "label": "# Trades/Day",
-        "value": "frequency"
+        'label': '# Trades/Day',
+        'value': 'frequency'
       },
       {
-        "label": "Strategy",
-        "value": "strategy"
+        'label': 'Strategy',
+        'value': 'strategy'
       },
       {
-        "label": "Order Type",
-        "value": "order_type"
+        'label': 'Order Type',
+        'value': 'order_type'
       },
       {
-        "label": "Ending Balance ($)",
-        "value": "endBalance"
+        'label': 'Ending Balance ($)',
+        'value': 'endBalance'
       },
       {
-        "label": "Buy Hold ($)",
-        "value": "buyHold"
+        'label': 'Buy Hold ($)',
+        'value': 'buyHold'
       },
       {
-        "label": "# Wins",
-        "value": "wins"
+        'label': '# Wins',
+        'value': 'wins'
       },
       {
-        "label": "# Losses",
-        "value": "losses"
+        'label': '# Losses',
+        'value': 'losses'
       },
       {
-        "label": "Period",
-        "value": "period_length"
+        'label': 'Period',
+        'value': 'period_length'
       },
       {
-        "label": "Min Periods",
-        "value": "min_periods"
+        'label': 'Min Periods',
+        'value': 'min_periods'
       },
       {
-        "label": "# Days",
-        "value": "days"
+        'label': '# Days',
+        'value': 'days'
       },
       {
-        "label": "Full Parameters",
-        "value": "params"
+        'label': 'Full Parameters',
+        'value': 'params'
       }
     ]
 
-    let json2csvParser = new Json2csvParser({ fields })
+    let json2csvParser = new Json2csvParser({fields})
     let dataCSV = json2csvParser.parse(results)
     let csvFileName = `simulations/${population_data}/gen_${generationCount}/results.csv`
     let poolData = {}
@@ -520,14 +514,12 @@ for (var i = 0; i < selectedStrategies.length; i++) {
     if (evolve) {
       strategyPool['pool'].evolve()
     }
-  }
-  else {
+  } else {
     if (strategyName === 'all') {
       // skip it
       selectedStrategies.splice(i, 1)
       i--
-    }
-    else {
+    } else {
       console.log(`No phenotypes definition found for strategy ${v}`)
       process.exit(1)
     }
@@ -559,17 +551,17 @@ var exitHandler = function (options, exitErr) {
   if (options.exit) process.exit()
 }
 
-process.on('exit', exitHandler.bind(null, { cleanup: true }))
+process.on('exit', exitHandler.bind(null, {cleanup: true}))
 
 //catches ctrl+c event
-process.on('SIGINT', exitHandler.bind(null, { exit: true }))
+process.on('SIGINT', exitHandler.bind(null, {exit: true}))
 
 // catches "kill pid" (for example: nodemon restart)
-process.on('SIGUSR1', exitHandler.bind(null, { exit: true }))
-process.on('SIGUSR2', exitHandler.bind(null, { exit: true }))
+process.on('SIGUSR1', exitHandler.bind(null, {exit: true}))
+process.on('SIGUSR2', exitHandler.bind(null, {exit: true}))
 
 //catches uncaught exceptions
-process.on('uncaughtException', exitHandler.bind(null, { exit: true }))
+process.on('uncaughtException', exitHandler.bind(null, {exit: true}))
 // END - exitHandler
 
 Backtester.init({

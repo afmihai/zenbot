@@ -1,4 +1,4 @@
-var echarts = require('echarts/lib/echarts')
+const echarts = require('echarts/lib/echarts')
 
 require('echarts/lib/chart/line')
 require('echarts/lib/chart/bar')
